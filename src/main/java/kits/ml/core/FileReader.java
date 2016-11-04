@@ -1,6 +1,6 @@
 package kits.ml.core;
 
-import java.util.Set;
+import java.util.List;
 
 public class FileReader {
 
@@ -9,7 +9,7 @@ public class FileReader {
 		return null;
 	}
 
-	public static Set<LearningData> readLearningDataSet(String string) {
+	public static List<LearningData> readLearningDataSet(String string) {
 		// TODO Auto-generated method stub
 		return null;
 	}

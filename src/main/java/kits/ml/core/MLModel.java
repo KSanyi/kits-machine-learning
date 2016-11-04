@@ -1,13 +1,13 @@
 package kits.ml.core;
 
-import java.util.Set;
+import java.util.List;
 
 public interface MLModel {
 
-	void learn(Set<LearningData> learningDataSet);
+	void learn(List<LearningData> learningDataSet);
 
 	double calculateOutput(Input input);
 
-	double calculateCost(Set<LearningData> learningDataSet);
+	double calculateCost(List<LearningData> learningDataSet);
 
 }
