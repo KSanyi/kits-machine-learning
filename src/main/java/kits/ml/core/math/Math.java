@@ -1,4 +1,4 @@
-package kits.ml.core;
+package kits.ml.core.math;
 
 public class Math {
 
@@ -8,6 +8,10 @@ public class Math {
 	
 	public static double sqrt(double value) {
 		return java.lang.Math.sqrt(value);
+	}
+	
+	public static double sigmoid(double value) {
+		return 1 / (1 + java.lang.Math.exp(-value));
 	}
 	
 }
