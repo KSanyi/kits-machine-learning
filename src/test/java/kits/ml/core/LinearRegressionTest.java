@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class LinearRegressionTest {
 
-	//@Test
+	@Test
 	public void test1() {
 		
 		MLModel model = new LinearRegressionModel(1);

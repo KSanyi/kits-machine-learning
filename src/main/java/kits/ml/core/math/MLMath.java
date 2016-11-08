@@ -1,6 +1,6 @@
 package kits.ml.core.math;
 
-public class Math {
+public class MLMath {
 
 	public static double square(double value) {
 		return value * value;

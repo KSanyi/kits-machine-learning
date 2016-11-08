@@ -5,7 +5,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import Jama.Matrix;
-import kits.ml.core.math.Math;
+import kits.ml.core.math.MLMath;
 import kits.ml.core.math.Statistics;
 import kits.ml.core.math.Statistics.Standardizer;
 
@@ -29,6 +29,12 @@ public class LinearRegressionModel implements MLModel {
 		this.alpha = alpha;
 		this.steps = steps;
 		parameters = new double[inputDimension+1];
+	}
+	
+	public LinearRegressionModel(double ... parameters) {
+		this(parameters.length-1, 0.01);
+		this.parameters = parameters;
+		this.standardizers = IntStream.range(0, parameters.length-1).mapToObj(i -> Statistics.NoOpStandardizer).toArray(Standardizer[]::new);
 	}
 
 	private double[] parameters;
@@ -88,7 +94,7 @@ public class LinearRegressionModel implements MLModel {
 	@Override
 	public double calculateCost(List<LearningData> learningDataSet) {
 		int n = learningDataSet.size();
-		return learningDataSet.stream().mapToDouble(learningData -> Math.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
+		return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
 	}
 	
 	private void checkDimension(Input input) {

@@ -6,12 +6,13 @@ import java.util.stream.IntStream;
 public class Statistics {
 
 	public static double average(double[] values) {
+		if(values.length == 0) throw new IllegalArgumentException("Cannot compute statistics without data");
 		return DoubleStream.of(values).sum() / values.length;
 	}
 	
 	public static double stDev(double[] values) {
 		double average = average(values);
-		return Math.sqrt(DoubleStream.of(values).map(value -> Math.square(value - average)).sum() / values.length);
+		return MLMath.sqrt(DoubleStream.of(values).map(value -> MLMath.square(value - average)).sum() / values.length);
 	}
 	
 	public static double[] standardize(double[] values, Standardizer[] standardizers) {
@@ -33,6 +34,13 @@ public class Statistics {
 		public double standardize(double value) {
 			return (value - average) / stdev;
 		}
+		
+		Standardizer() {
+			average = 0;
+			stdev = 1;
+		}
 	}
+	
+	public static Standardizer NoOpStandardizer = new Standardizer();
 	
 }

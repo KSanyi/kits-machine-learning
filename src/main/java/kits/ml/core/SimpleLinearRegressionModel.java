@@ -5,7 +5,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import Jama.Matrix;
-import kits.ml.core.math.Math;
+import kits.ml.core.math.MLMath;
 
 public class SimpleLinearRegressionModel implements MLModel {
 	
@@ -51,7 +51,7 @@ public class SimpleLinearRegressionModel implements MLModel {
 	@Override
 	public double calculateCost(List<LearningData> learningDataSet) {
 		int n = learningDataSet.size();
-		return learningDataSet.stream().mapToDouble(learningData -> Math.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
+		return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
 	}
 	
 	private void checkDimension(Input input) {
