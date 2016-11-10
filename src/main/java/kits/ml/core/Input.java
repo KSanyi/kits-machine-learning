@@ -1,7 +1,6 @@
 package kits.ml.core;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class Input {
 
@@ -17,6 +16,6 @@ public class Input {
 	
 	@Override
 	public String toString() {
-		return Stream.of(values).map(String::valueOf).collect(Collectors.joining(" "));
+		return Arrays.toString(values);
 	}
 }

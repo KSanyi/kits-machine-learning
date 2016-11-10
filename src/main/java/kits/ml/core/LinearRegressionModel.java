@@ -16,6 +16,10 @@ public class LinearRegressionModel implements MLModel {
 	
 	private final int inputDimension;
 	
+	private double[] parameters;
+    
+    private Standardizer[] standardizers;
+	
 	public LinearRegressionModel(int inputDimension) {
 		this(inputDimension, 0.01);
 	}
@@ -31,16 +35,14 @@ public class LinearRegressionModel implements MLModel {
 		parameters = new double[inputDimension+1];
 	}
 	
-	public LinearRegressionModel(double ... parameters) {
-		this(parameters.length-1, 0.01);
-		this.parameters = parameters;
-		this.standardizers = IntStream.range(0, parameters.length-1).mapToObj(i -> Statistics.NoOpStandardizer).toArray(Standardizer[]::new);
-	}
+	public void setParameters(double ... parameters) {
+        if(parameters.length != inputDimension+1) {
+            throw new IllegalArgumentException("Parameters must have dimension " + (inputDimension+1));
+        }
+        this.parameters = parameters;
+        this.standardizers = IntStream.range(0, parameters.length-1).mapToObj(i -> Statistics.NoOpStandardizer).toArray(Standardizer[]::new);
+    }
 
-	private double[] parameters;
-	
-	private Standardizer[] standardizers;
-	
 	@Override
 	public void learn(List<LearningData> learningDataSet) {
 		learningDataSet.stream().map(learningData -> learningData.input).forEach(this::checkDimension);

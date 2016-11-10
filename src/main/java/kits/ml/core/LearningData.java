@@ -11,4 +11,9 @@ public class LearningData {
 		this.output = output;
 	}
 	
+	@Override
+	public String toString() {
+	    return input + " -> " + output;
+	}
+	
 }

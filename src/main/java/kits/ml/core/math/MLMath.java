@@ -1,5 +1,7 @@
 package kits.ml.core.math;
 
+import java.util.stream.DoubleStream;
+
 public class MLMath {
 
 	public static double square(double value) {
@@ -13,5 +15,9 @@ public class MLMath {
 	public static double sigmoid(double value) {
 		return 1 / (1 + java.lang.Math.exp(-value));
 	}
+	
+	public static double[] sigmoid(double[] values) {
+	    return DoubleStream.of(values).map(MLMath::sigmoid).toArray();
+    }
 	
 }
