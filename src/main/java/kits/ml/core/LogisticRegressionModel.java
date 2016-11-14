@@ -53,7 +53,7 @@ public class LogisticRegressionModel {
 		    /**
              *  theta - alpha / n * X' * (sigmoid(X * theta) - y)
              */
-			Matrix gradient = X.transpose().times(sigmoid(X.times(theta)).minus(y)).times(1d / learningDataSet.size());
+			Matrix gradient = X.transpose().times(MLMath.sigmoid(X.times(theta)).minus(y)).times(1d / learningDataSet.size());
 			double alpha = findAlpha(learningDataSet, gradient, theta);
 		    theta = theta.minus(gradient.times(alpha));
 		}
@@ -138,12 +138,7 @@ public class LogisticRegressionModel {
         thetaForRegularization.set(0, 0, 0);
         int n = learningDataSet.size();
         
-        return X.transpose().times(sigmoid(X.times(theta)).minus(y)).times(1d / n).plus(thetaForRegularization.times(lambda / n)).getColumnPackedCopy();
-	}
-	
-	private Matrix sigmoid(Matrix A) {
-	    double[] sigmoidValues = MLMath.sigmoid(A.getColumnPackedCopy());
-	    return new Matrix(sigmoidValues, A.getRowDimension());
+        return X.transpose().times(MLMath.sigmoid(X.times(theta)).minus(y)).times(1d / n).plus(thetaForRegularization.times(lambda / n)).getColumnPackedCopy();
 	}
 	
 	private void checkDimension(Input input) {

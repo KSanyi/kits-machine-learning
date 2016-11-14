@@ -44,7 +44,8 @@ public class NeuralNet {
 		double max = 0;
 		int indexForMax = -1;
 		for(int i=0;i<output.length;i++) {
-			if(output[i] > max) {
+			//System.out.println("Output for " + (i+1) + " " + output[i]);
+		    if(output[i] > max) {
 				max = output[i];
 				indexForMax = i;
 			}
