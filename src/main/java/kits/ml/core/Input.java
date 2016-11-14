@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Input {
 
-	final double[] values;
+	public final double[] values;
 
 	public Input(double ... values){
 		this.values = values;

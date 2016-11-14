@@ -37,7 +37,7 @@ public class NeuralNet {
 			inp = new Input(output);
 		}
 		
-		return findIndexForMaxOutput(output);
+		return findIndexForMaxOutput(output) + 1;
 	}
 	
 	private int findIndexForMaxOutput(double[] output) {
@@ -57,11 +57,11 @@ public class NeuralNet {
 		final List<Neuron> neurons;
 		
 		Layer(int numberOfNeurons, int numberOfNeuronsInPrevLayer) {
-			neurons = IntStream.of(0, numberOfNeurons).mapToObj(i -> new Neuron(numberOfNeuronsInPrevLayer)).collect(Collectors.toList());
+			neurons = IntStream.range(0, numberOfNeurons).mapToObj(i -> new Neuron(numberOfNeuronsInPrevLayer)).collect(Collectors.toList());
 		}
 		
 		Layer(double[][] weights) {
-			neurons = IntStream.of(0, weights.length).mapToObj(i -> new Neuron(weights[i])).collect(Collectors.toList());
+			neurons = IntStream.range(0, weights.length).mapToObj(i -> new Neuron(weights[i])).collect(Collectors.toList());
 		}
 		
 		public double[] calculateOutput(Input input) {

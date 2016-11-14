@@ -6,6 +6,7 @@ import java.util.List;
 import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.MultiClassificationModel;
+import kits.ml.neuralnet.NeuralNet;
 
 public class Exercise3 {
 
@@ -32,6 +33,8 @@ public class Exercise3 {
         task1();
         System.out.println();
         task2();
+        System.out.println();
+        task3();
     }
     
     
@@ -61,5 +64,26 @@ public class Exercise3 {
         
         learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)model.predict(learningData.input)));
     }
-
+    
+    private static void task3() {
+        System.out.println("Task 3");
+        
+        double[][] weights1 = new double[][] {
+            { 0.84147,  0.41212, -0.96140},
+            { 0.14112, -0.99999,  0.14988},
+            {-0.95892,  0.42017,  0.83666},
+            { 0.65699,  0.65029, -0.84622}  
+        };
+        
+        double[][] weights2 = new double[][] {
+            { 0.5403023, -0.9111303, -0.2751633,  0.9912028, -0.0132767},
+            {-0.9899925,  0.0044257,  0.9887046, -0.2921388, -0.9036922},
+            { 0.2836622,  0.9074468, -0.5477293, -0.7480575,  0.7654141},
+            { 0.7539023, -0.7596879, -0.5328330,  0.9147424,  0.2666429}  
+        };
+        
+        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2));
+        
+        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)neuralNet.predict(learningData.input)));
+    }
 }
