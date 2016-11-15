@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import kits.ml.core.Input;
+import kits.ml.core.LearningData;
 
 public class NeuralNet {
 
@@ -30,14 +31,7 @@ public class NeuralNet {
 	}
 	
 	public int predict(Input input) {
-		Input inp = input;
-		double[] output = null;
-		for(Layer hiddenLayer : hiddenLayers) {
-			output = hiddenLayer.calculateOutput(inp);
-			inp = new Input(output);
-		}
-		
-		return findIndexForMaxOutput(output) + 1;
+		return findIndexForMaxOutput(calculateOutput(input)) + 1;
 	}
 	
 	private int findIndexForMaxOutput(double[] output) {
@@ -52,6 +46,39 @@ public class NeuralNet {
 		}
 		return indexForMax;
 	}
+	
+	public double calculateCost(List<LearningData> learningDataSet) {
+	    int n = learningDataSet.size();
+	    
+	    double cost = learningDataSet.stream().mapToDouble(this::calculateCost).sum() / n;
+        return cost;
+	}
+	
+	private double calculateCost(LearningData learningData) {
+        Input input = learningData.input;
+        double[] calculatedOutput = calculateOutput(input);
+        double[] expectedOutput = calculateExpectedOutputArray(learningData.output, calculatedOutput.length);
+        
+        return IntStream.range(0, calculatedOutput.length).mapToDouble(i -> -expectedOutput[i] * Math.log(calculatedOutput[i]) - (1 - expectedOutput[i]) * Math.log(1 - calculatedOutput[i])).sum();
+    }
+	
+	private double[] calculateExpectedOutputArray(double output, int size) {
+	    int outputIndex = (int)output -1;
+	    double[] expectedOutput = new double[size];
+	    expectedOutput[outputIndex] = 1;
+	    return expectedOutput;
+	}
+	
+	public double[] calculateOutput(Input input) {
+	    Input inp = input;
+        double[] output = null;
+        for(Layer hiddenLayer : hiddenLayers) {
+            output = hiddenLayer.calculateOutput(inp);
+            inp = new Input(output);
+        }
+        
+        return output;
+    }
 	
 	private static class Layer {
 		
