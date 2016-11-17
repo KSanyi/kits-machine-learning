@@ -3,23 +3,28 @@ package kits.ml.neuralnet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import kits.ml.core.Input;
 import kits.ml.core.LearningData;
+import kits.ml.core.math.MLMath;
 
 public class NeuralNet {
 
 	private final List<Layer> hiddenLayers;
 	
-	public NeuralNet(List<double[][]> layerWeights) {
+	private final double lambda;
+	
+	public NeuralNet(List<double[][]> layerWeights, double lambda) {
 		hiddenLayers = new ArrayList<>();
 		for(double[][] weights : layerWeights) {
 			hiddenLayers.add(new Layer(weights));
 		}
+		this.lambda = lambda;
 	}
 	
-	public NeuralNet(int inputDimension, int ... hiddenLayerNeurons) {
+	public NeuralNet(int inputDimension, double lambda, int ... hiddenLayerNeurons) {
 		if(hiddenLayerNeurons.length == 0) throw new IllegalArgumentException("At least 1 layer is expected");
 		
 		hiddenLayers = new ArrayList<>();
@@ -28,6 +33,8 @@ public class NeuralNet {
 			hiddenLayers.add(new Layer(numberOfNeurons, numberOfNeuronsInPrevLayer));
 			numberOfNeuronsInPrevLayer = numberOfNeurons;
 		}
+		
+		this.lambda = lambda;
 	}
 	
 	public int predict(Input input) {
@@ -51,7 +58,12 @@ public class NeuralNet {
 	    int n = learningDataSet.size();
 	    
 	    double cost = learningDataSet.stream().mapToDouble(this::calculateCost).sum() / n;
-        return cost;
+	    double regularizedCost = lambda * weightsToRegularize().map(MLMath::square).sum() / (2 * n); 
+        return cost + regularizedCost;
+	}
+	
+	private DoubleStream weightsToRegularize() {
+	    return hiddenLayers.stream().flatMapToDouble(Layer::weightsToRegularize);
 	}
 	
 	private double calculateCost(LearningData learningData) {
@@ -92,8 +104,12 @@ public class NeuralNet {
 			neurons = IntStream.range(0, weights.length).mapToObj(i -> new Neuron(weights[i])).collect(Collectors.toList());
 		}
 		
-		public double[] calculateOutput(Input input) {
+		double[] calculateOutput(Input input) {
 			return neurons.stream().mapToDouble(neuron -> neuron.calculateOutput(input)).toArray();
+		}
+		
+		DoubleStream weightsToRegularize() {
+		    return neurons.stream().flatMapToDouble(Neuron::weightsToRegularize);
 		}
 	}
 	

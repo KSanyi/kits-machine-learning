@@ -82,7 +82,7 @@ public class Exercise3 {
             { 0.7539023, -0.7596879, -0.5328330,  0.9147424,  0.2666429}  
         };
         
-        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2));
+        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2), 0);
         
         learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)neuralNet.predict(learningData.input)));
     }

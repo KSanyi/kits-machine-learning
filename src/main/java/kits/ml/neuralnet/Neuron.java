@@ -1,5 +1,6 @@
 package kits.ml.neuralnet;
 
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import kits.ml.core.Input;
@@ -23,6 +24,10 @@ public class Neuron {
 	
 	public double calculateOutput(Input input) {
 		return MLMath.sigmoid(weights[0] + IntStream.range(0, inputDimension).mapToDouble(i -> weights[i+1] * input.values[i]).sum());
+	}
+	
+	public DoubleStream weightsToRegularize() {
+	    return IntStream.range(1, weights.length).mapToDouble(i -> weights[i]);
 	}
 	
 }

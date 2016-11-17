@@ -36,32 +36,40 @@ public class Exercise4 {
             new LearningData(new Input( 0.1300576, -0.0808075), 4),
             new LearningData(new Input(-0.0575807,  0.1102853), 1));
          
+    static final double[][] weights1 = new double[][] {
+        { 0.84147,  0.41212, -0.96140},
+        { 0.14112, -0.99999,  0.14988},
+        {-0.95892,  0.42017,  0.83666},
+        { 0.65699,  0.65029, -0.84622}  
+    };
+    
+    static final double[][] weights2 = new double[][] {
+        { 0.5403023, -0.9111303, -0.2751633,  0.9912028, -0.0132767},
+        {-0.9899925,  0.0044257,  0.9887046, -0.2921388, -0.9036922},
+        { 0.2836622,  0.9074468, -0.5477293, -0.7480575,  0.7654141},
+        { 0.7539023, -0.7596879, -0.5328330,  0.9147424,  0.2666429}  
+    };
+    
     public static void main(String[] args) {
         task1();
         System.out.println();
-        //task2();
-        //System.out.println();
+        task2();
+        System.out.println();
         task3();
     }
     
     private static void task1() {
         System.out.println("Task 1");
         
-        double[][] weights1 = new double[][] {
-            { 0.84147,  0.41212, -0.96140},
-            { 0.14112, -0.99999,  0.14988},
-            {-0.95892,  0.42017,  0.83666},
-            { 0.65699,  0.65029, -0.84622}  
-        };
+        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2), 0);
         
-        double[][] weights2 = new double[][] {
-            { 0.5403023, -0.9111303, -0.2751633,  0.9912028, -0.0132767},
-            {-0.9899925,  0.0044257,  0.9887046, -0.2921388, -0.9036922},
-            { 0.2836622,  0.9074468, -0.5477293, -0.7480575,  0.7654141},
-            { 0.7539023, -0.7596879, -0.5328330,  0.9147424,  0.2666429}  
-        };
+        System.out.println(neuralNet.calculateCost(learningDataSet));
+    }
+    
+    private static void task2() {
+        System.out.println("Task 2");
         
-        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2));
+        NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2), 1.5);
         
         System.out.println(neuralNet.calculateCost(learningDataSet));
     }
