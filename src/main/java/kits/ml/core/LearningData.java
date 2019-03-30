@@ -2,18 +2,18 @@ package kits.ml.core;
 
 public class LearningData {
 
-	public final Input input;
-	
-	public final double output;
+    public final Input input;
 
-	public LearningData(Input input, double output) {
-		this.input = input;
-		this.output = output;
-	}
-	
-	@Override
-	public String toString() {
-	    return input + " -> " + output;
-	}
-	
+    public final double output;
+
+    public LearningData(Input input, double output) {
+        this.input = input;
+        this.output = output;
+    }
+
+    @Override
+    public String toString() {
+        return input + " -> " + output;
+    }
+
 }
