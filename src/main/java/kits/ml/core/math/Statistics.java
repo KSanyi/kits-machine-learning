@@ -8,12 +8,12 @@ public class Statistics {
     public static double average(double[] values) {
         if (values.length == 0)
             throw new IllegalArgumentException("Cannot compute statistics without data");
-        return DoubleStream.of(values).sum() / values.length;
+        return DoubleStream.of(values).average().getAsDouble();
     }
 
     public static double stDev(double[] values) {
         double average = average(values);
-        return MLMath.sqrt(DoubleStream.of(values).map(value -> MLMath.square(value - average)).sum() / values.length);
+        return MLMath.sqrt(DoubleStream.of(values).map(value -> MLMath.square(value - average)).average().getAsDouble());
     }
 
     public static double[] standardize(double[] values, Standardizer[] standardizers) {

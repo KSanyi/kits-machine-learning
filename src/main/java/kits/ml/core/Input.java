@@ -6,7 +6,7 @@ public class Input {
 
     public final double[] values;
 
-    public Input(double... values) {
+    public Input(double ... values) {
         this.values = values;
     }
 

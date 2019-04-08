@@ -35,7 +35,7 @@ public class LinearRegressionModel implements MLModel {
         parameters = new double[inputDimension + 1];
     }
 
-    public void setParameters(double... parameters) {
+    public void setParameters(double ... parameters) {
         if (parameters.length != inputDimension + 1) {
             throw new IllegalArgumentException("Parameters must have dimension " + (inputDimension + 1));
         }
@@ -53,7 +53,7 @@ public class LinearRegressionModel implements MLModel {
         Matrix y = getOutputVector(learningDataSet);
         Matrix theta = new Matrix(parameters, parameters.length);
 
-        for (int i = 0; i < steps; i++) {
+        for(int i=0;i<steps;i++) {
             // parameters = theta.getColumnPackedCopy();
             // System.out.println("Params: " + Arrays.toString(parameters));
             // System.out.println("Cost: " + calculateCost(learningDataSet));
@@ -68,11 +68,15 @@ public class LinearRegressionModel implements MLModel {
     }
 
     private Standardizer[] createStandardizers(List<LearningData> learningDataSet) {
-        return IntStream.range(0, inputDimension).mapToObj(i -> new Standardizer(getColumnValues(learningDataSet, i))).toArray(Standardizer[]::new);
+        return IntStream.range(0, inputDimension)
+                .mapToObj(i -> new Standardizer(getColumnValues(learningDataSet, i)))
+                .toArray(Standardizer[]::new);
     }
 
     private double[] getColumnValues(List<LearningData> learningDataSet, int i) {
-        return learningDataSet.stream().mapToDouble(learningData -> learningData.input.values[i]).toArray();
+        return learningDataSet.stream()
+                .mapToDouble(learningData -> learningData.input.values[i])
+                .toArray();
     }
 
     private Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
@@ -83,7 +87,9 @@ public class LinearRegressionModel implements MLModel {
     }
 
     private Matrix getOutputVector(List<LearningData> learningDataSet) {
-        double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output).toArray();
+        double[] values = learningDataSet.stream()
+                .mapToDouble(learningData -> learningData.output)
+                .toArray();
         return new Matrix(values, learningDataSet.size());
     }
 

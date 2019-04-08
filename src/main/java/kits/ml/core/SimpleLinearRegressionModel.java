@@ -10,13 +10,13 @@ import kits.ml.core.math.MLMath;
 public class SimpleLinearRegressionModel implements MLModel {
 
     private final int inputDimension;
+    
+    private double[] parameters;
 
     public SimpleLinearRegressionModel(int inputDimension) {
         this.inputDimension = inputDimension;
         this.parameters = new double[inputDimension + 1];
     }
-
-    private double[] parameters;
 
     @Override
     public void learn(List<LearningData> learningDataSet) {
@@ -33,12 +33,16 @@ public class SimpleLinearRegressionModel implements MLModel {
     }
 
     private Matrix getInputMatrix(List<LearningData> learningDataSet) {
-        double[] values = learningDataSet.stream().flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values))).toArray();
+        double[] values = learningDataSet.stream()
+                .flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values)))
+                .toArray();
         return new Matrix(values, inputDimension + 1).transpose();
     }
 
     private Matrix getOutputVector(List<LearningData> learningDataSet) {
-        double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output).toArray();
+        double[] values = learningDataSet.stream()
+                .mapToDouble(learningData -> learningData.output)
+                .toArray();
         return new Matrix(values, learningDataSet.size());
     }
 
@@ -51,7 +55,9 @@ public class SimpleLinearRegressionModel implements MLModel {
     @Override
     public double calculateCost(List<LearningData> learningDataSet) {
         int n = learningDataSet.size();
-        return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
+        return learningDataSet.stream()
+                .mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input)))
+                .sum() / (2 * n);
     }
 
     private void checkDimension(Input input) {

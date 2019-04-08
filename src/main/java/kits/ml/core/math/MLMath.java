@@ -11,11 +11,11 @@ public class MLMath {
     }
 
     public static double sqrt(double x) {
-        return java.lang.Math.sqrt(x);
+        return Math.sqrt(x);
     }
 
     public static double sigmoid(double x) {
-        return 1 / (1 + java.lang.Math.exp(-x));
+        return 1 / (1 + Math.exp(-x));
     }
 
     public static double[] sigmoid(double[] values) {

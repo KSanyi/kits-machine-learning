@@ -1,26 +1,23 @@
 package kits.ml.core;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileReader {
 
     private final static String DELIMETER = ",";
 
-    public static Input readInput(String string) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public static List<LearningData> readLearningDataSet(String filePath) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(filePath));
-            return lines.stream().map(FileReader::createLearningData).collect(Collectors.toList());
+            return Files.lines(Paths.get(filePath))
+                    .map(FileReader::createLearningData)
+                    .collect(toList());
         } catch (IOException ex) {
             throw new RuntimeException("Can not read file: " + filePath);
         }

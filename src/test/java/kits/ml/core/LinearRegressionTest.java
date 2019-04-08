@@ -14,9 +14,9 @@ public class LinearRegressionTest {
         MLModel model = new LinearRegressionModel(1);
 
         List<LearningData> learningDataSet = Arrays.asList(
-                new LearningData(new Input(0), 1), 
-                new LearningData(new Input(1), 3), 
-                new LearningData(new Input(2), 5),
+                new LearningData(new Input( 0),  1), 
+                new LearningData(new Input( 1),  3), 
+                new LearningData(new Input( 2),  5),
                 new LearningData(new Input(10), 21));
 
         model.learn(learningDataSet);
