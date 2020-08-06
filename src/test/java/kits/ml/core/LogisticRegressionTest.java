@@ -1,10 +1,11 @@
 package kits.ml.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LogisticRegressionTest {
 
@@ -18,9 +19,9 @@ public class LogisticRegressionTest {
         model.learn(learningDataSet);
 
         final double DELTA = 0.001;
-        Assert.assertEquals(0.6241, model.calculateOutput(new Input(45, 85)), DELTA);
-        Assert.assertEquals(0.5295, model.calculateOutput(new Input(11, 20)), DELTA);
-        Assert.assertEquals(0.7382, model.calculateOutput(new Input(95, 97)), DELTA);
+        assertEquals(0.6241, model.calculateOutput(new Input(45, 85)), DELTA);
+        assertEquals(0.5295, model.calculateOutput(new Input(11, 20)), DELTA);
+        assertEquals(0.7382, model.calculateOutput(new Input(95, 97)), DELTA);
     }
 
     @Test

@@ -34,11 +34,11 @@ public class MultiClassificationModel {
         }
     }
 
-    private List<LearningData> transformLearningDataSetForClass(List<LearningData> learningDataSet, int classIndex) {
+    private static List<LearningData> transformLearningDataSetForClass(List<LearningData> learningDataSet, int classIndex) {
         return learningDataSet.stream().map(learningData -> transformLearningDataForClass(learningData, classIndex)).collect(Collectors.toList());
     }
 
-    private LearningData transformLearningDataForClass(LearningData learningData, int classIndex) {
+    private static LearningData transformLearningDataForClass(LearningData learningData, int classIndex) {
         int newOutput = learningData.output == classIndex ? 1 : 0;
         return new LearningData(learningData.input, newOutput);
     }

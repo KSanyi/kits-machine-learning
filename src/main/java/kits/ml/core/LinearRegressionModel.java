@@ -1,5 +1,6 @@
 package kits.ml.core;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -53,11 +54,15 @@ public class LinearRegressionModel implements MLModel {
         Matrix y = getOutputVector(learningDataSet);
         Matrix theta = new Matrix(parameters, parameters.length);
 
+        double prevCost = 100;
         for(int i=0;i<steps;i++) {
-            // parameters = theta.getColumnPackedCopy();
-            // System.out.println("Params: " + Arrays.toString(parameters));
-            // System.out.println("Cost: " + calculateCost(learningDataSet));
-
+            parameters = theta.getColumnPackedCopy();
+            System.out.println("Params: " + Arrays.toString(parameters));
+            double cost = calculateCost(learningDataSet);
+            System.out.println("Cost: " + cost);
+            System.out.println("Cost decrement: " + (prevCost - cost));
+            prevCost = cost;
+            
             /**
              * theta - alpha / n * X' * (X * theta - y)
              */
@@ -73,7 +78,7 @@ public class LinearRegressionModel implements MLModel {
                 .toArray(Standardizer[]::new);
     }
 
-    private double[] getColumnValues(List<LearningData> learningDataSet, int i) {
+    private static double[] getColumnValues(List<LearningData> learningDataSet, int i) {
         return learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.input.values[i])
                 .toArray();
@@ -86,7 +91,7 @@ public class LinearRegressionModel implements MLModel {
         return new Matrix(values, inputDimension + 1).transpose();
     }
 
-    private Matrix getOutputVector(List<LearningData> learningDataSet) {
+    private static Matrix getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.output)
                 .toArray();

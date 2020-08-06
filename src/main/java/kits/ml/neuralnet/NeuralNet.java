@@ -42,7 +42,7 @@ public class NeuralNet {
         return findIndexForMaxOutput(calculateOutput(input)) + 1;
     }
 
-    private int findIndexForMaxOutput(double[] output) {
+    private static int findIndexForMaxOutput(double[] output) {
         double max = 0;
         int indexForMax = -1;
         for (int i = 0; i < output.length; i++) {
@@ -76,7 +76,7 @@ public class NeuralNet {
                 .mapToDouble(i -> -expectedOutput[i] * Math.log(calculatedOutput[i]) - (1 - expectedOutput[i]) * Math.log(1 - calculatedOutput[i])).sum();
     }
 
-    private double[] calculateExpectedOutputArray(double output, int size) {
+    private static double[] calculateExpectedOutputArray(double output, int size) {
         int outputIndex = (int) output - 1;
         double[] expectedOutput = new double[size];
         expectedOutput[outputIndex] = 1;

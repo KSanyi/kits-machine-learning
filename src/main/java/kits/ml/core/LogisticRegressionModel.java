@@ -66,7 +66,7 @@ public class LogisticRegressionModel {
         }
     }
 
-    private double findAlpha(List<LearningData> learningDataSet, Matrix gradient, Matrix currentTheta) {
+    private static double findAlpha(List<LearningData> learningDataSet, Matrix gradient, Matrix currentTheta) {
         return 0.0001;
 
         /*
@@ -89,7 +89,7 @@ public class LogisticRegressionModel {
         return new Matrix(values, inputDimension + 1).transpose();
     }
 
-    private Matrix getOutputVector(List<LearningData> learningDataSet) {
+    private static Matrix getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output).toArray();
         return new Matrix(values, learningDataSet.size());
     }

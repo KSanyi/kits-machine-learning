@@ -39,7 +39,7 @@ public class SimpleLinearRegressionModel implements MLModel {
         return new Matrix(values, inputDimension + 1).transpose();
     }
 
-    private Matrix getOutputVector(List<LearningData> learningDataSet) {
+    private static Matrix getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.output)
                 .toArray();
