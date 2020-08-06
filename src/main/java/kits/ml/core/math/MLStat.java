@@ -3,7 +3,7 @@ package kits.ml.core.math;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-public class Statistics {
+public class MLStat {
 
     public static double average(double[] values) {
         if (values.length == 0)
@@ -29,8 +29,8 @@ public class Statistics {
         private final double stdev;
 
         public Standardizer(double[] values) {
-            average = Statistics.average(values);
-            stdev = Statistics.stDev(values);
+            average = MLStat.average(values);
+            stdev = MLStat.stDev(values);
         }
 
         public double standardize(double value) {

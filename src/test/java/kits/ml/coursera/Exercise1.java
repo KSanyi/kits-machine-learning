@@ -67,7 +67,7 @@ public class Exercise1 {
         System.out.println("Task 2");
         
         double[] column1 = new Matrix(20, 1, 1).getColumnPackedCopy();
-        double[] column2 = DoubleStream.of(MLMath.generate(0.1, 0.1, 2)).map(i -> Math.exp(1) + Math.exp(2) * i).toArray();
+        double[] column2 = DoubleStream.of(MLMath.generateArithmeticSeries(0.1, 0.1, 2)).map(i -> Math.exp(1) + Math.exp(2) * i).toArray();
         
         Matrix matrix = MLMath.matrixFromColumns(column1, column2);
         

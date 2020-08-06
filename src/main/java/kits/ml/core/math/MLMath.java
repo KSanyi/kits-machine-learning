@@ -43,7 +43,7 @@ public class MLMath {
         return new Matrix(sigmoidGradientValues, X.getRowDimension());
     }
     
-    public static double[] generate(double start, double diff, double end) {
+    public static double[] generateArithmeticSeries(double start, double diff, double end) {
         
         List<Double> values = new ArrayList<>();
         double value = start;

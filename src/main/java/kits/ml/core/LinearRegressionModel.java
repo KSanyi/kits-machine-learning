@@ -7,8 +7,8 @@ import java.util.stream.IntStream;
 
 import Jama.Matrix;
 import kits.ml.core.math.MLMath;
-import kits.ml.core.math.Statistics;
-import kits.ml.core.math.Statistics.Standardizer;
+import kits.ml.core.math.MLStat;
+import kits.ml.core.math.MLStat.Standardizer;
 
 public class LinearRegressionModel implements MLModel {
 
@@ -41,7 +41,7 @@ public class LinearRegressionModel implements MLModel {
             throw new IllegalArgumentException("Parameters must have dimension " + (inputDimension + 1));
         }
         this.parameters = parameters;
-        this.standardizers = IntStream.range(0, parameters.length - 1).mapToObj(i -> Statistics.NoOpStandardizer).toArray(Standardizer[]::new);
+        this.standardizers = IntStream.range(0, parameters.length - 1).mapToObj(i -> MLStat.NoOpStandardizer).toArray(Standardizer[]::new);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class LinearRegressionModel implements MLModel {
 
     private Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
         double[] values = learningDataSet.stream()
-                .flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(Statistics.standardize(learningData.input.values, standardizers))))
+                .flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input.values, standardizers))))
                 .toArray();
         return new Matrix(values, inputDimension + 1).transpose();
     }
