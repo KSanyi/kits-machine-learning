@@ -1,4 +1,4 @@
-package kits.ml.core.math;
+package kits.ml.core.math.linalg;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -147,6 +147,27 @@ public class MatrixTest {
                 new double[] {0, 0, 3});
         
         Assertions.assertEquals(expected, Matrix.createDiagonal(1, 2, 3));
+    }
+    
+    @Test
+    public void appendMatrix() {
+        
+        Matrix A = new Matrix(
+                new double[] {0, 1},
+                new double[] {2, 3},
+                new double[] {4, 5});
+        
+        Matrix B = new Matrix(
+                new double[] {5, 9},
+                new double[] {6, 8},
+                new double[] {7, 7});
+        
+        Matrix expected = new Matrix(
+                new double[] {0, 1, 5, 9},
+                new double[] {2, 3, 6, 8},
+                new double[] {4, 5, 7, 7});
+        
+        Assertions.assertEquals(expected, A.appendMatrix(B));
     }
     
     @Test

@@ -1,4 +1,4 @@
-package kits.ml.core.math;
+package kits.ml.core.math.linalg;
 
 import java.util.Random;
 import java.util.function.Supplier;

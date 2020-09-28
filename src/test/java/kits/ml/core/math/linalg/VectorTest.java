@@ -1,4 +1,4 @@
-package kits.ml.core.math;
+package kits.ml.core.math.linalg;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
