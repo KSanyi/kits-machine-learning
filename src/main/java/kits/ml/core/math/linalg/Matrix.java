@@ -40,6 +40,10 @@ public class Matrix {
         }
     }
     
+    public Matrix(Matrix a) {
+        this(a.values);
+    }
+
     public int getNrRows() {
         return nrRows;
     }

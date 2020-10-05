@@ -17,7 +17,27 @@ public class MatrixTest {
             new double[] {0, 0},
             new double[] {0, 3});
         
-       assertEquals(expected, A);
+        assertEquals(expected, A);
+    }
+    
+    @Test
+    public void copyTest() {
+        
+        Matrix A = new Matrix(
+                new double[] {1, 2},
+                new double[] {3, 4});
+        
+        Matrix B = new Matrix(A);
+        
+        B.set(0, 0, -1);
+        B.set(0, 1, -2);
+        B.set(1, 0, -3);
+        B.set(1, 1, -4);
+        
+        assertEquals(1, A.get(0, 0));
+        assertEquals(2, A.get(0, 1));
+        assertEquals(3, A.get(1, 0));
+        assertEquals(4, A.get(1, 1));
     }
     
     @Test

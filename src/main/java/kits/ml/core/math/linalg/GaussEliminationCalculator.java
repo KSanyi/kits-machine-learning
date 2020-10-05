@@ -89,6 +89,7 @@ public class GaussEliminationCalculator {
         
     }
     
+    // TODO handle rowchanges
     public static Pair<Matrix, Matrix> createLUDecomposition(Matrix A) {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
@@ -96,25 +97,26 @@ public class GaussEliminationCalculator {
         int n = A.getNrColumns();
         
         Matrix L = Matrix.createIdentity(n);
+        Matrix U = new Matrix(A);
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
-            double pivot = A.get(rowIndex, rowIndex);
-            Vector pivotRow = A.getRowVector(rowIndex);
+            double pivot = U.get(rowIndex, rowIndex);
+            Vector pivotRow = U.getRowVector(rowIndex);
             if(pivot == 0) {
-                swapRowsDown(A, rowIndex);
-                pivot = A.get(rowIndex, rowIndex);
+                swapRowsDown(U, rowIndex);
+                pivot = U.get(rowIndex, rowIndex);
                 pivotRow = A.getRowVector(rowIndex);
             }
             for(int columnIndex=rowIndex+1;columnIndex<n;columnIndex++) {
-                Vector row = A.getRowVector(columnIndex);
+                Vector row = U.getRowVector(columnIndex);
                 double sss = row.get(rowIndex) / pivot;
                 L.set(columnIndex, rowIndex, sss);
                 row = row.minus(pivotRow.multiply(sss));
-                A.setRowVector(columnIndex, row);
+                U.setRowVector(columnIndex, row);
             }
         }
         
-        return Pair.of(L, A);
+        return Pair.of(L, U);
     }
     
 }
