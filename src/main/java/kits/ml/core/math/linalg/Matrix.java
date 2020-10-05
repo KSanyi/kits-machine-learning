@@ -132,22 +132,11 @@ public class Matrix {
         return new Vector(columnVectorValues);
     }
     
-    public Matrix appendColumn(Vector b) {
-        /*
-        if(b.length() != nrRows) throw new IllegalArgumentException("Vector length does not match number of rows");
-        double[][] resultValues = new double[nrRows][nrColumns+1];
-        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-                resultValues[rowIndex][columnIndex] = values[rowIndex][columnIndex];
-            }
-            resultValues[rowIndex][nrColumns] = b.get(rowIndex);
-        }
-        return new Matrix(resultValues);
-        */
-        return appendMatrix(b.asMatrix());
+    public Matrix augment(Vector b) {
+        return augment(b.asMatrix());
     }
     
-    public Matrix appendMatrix(Matrix other) {
+    public Matrix augment(Matrix other) {
         if(other.nrRows != nrRows) throw new IllegalArgumentException("Rownum of matrixes must match");
         double[][] resultValues = new double[nrRows][nrColumns + other.nrColumns];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {

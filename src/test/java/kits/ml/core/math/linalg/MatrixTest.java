@@ -150,7 +150,7 @@ public class MatrixTest {
     }
     
     @Test
-    public void appendMatrix() {
+    public void augment() {
         
         Matrix A = new Matrix(
                 new double[] {0, 1},
@@ -167,7 +167,7 @@ public class MatrixTest {
                 new double[] {2, 3, 6, 8},
                 new double[] {4, 5, 7, 7});
         
-        Assertions.assertEquals(expected, A.appendMatrix(B));
+        Assertions.assertEquals(expected, A.augment(B));
     }
     
     @Test

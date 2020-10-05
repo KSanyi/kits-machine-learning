@@ -1,5 +1,7 @@
 package kits.ml.core.math.linalg;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class GaussEliminationCalculator {
 
     public static Matrix runGaussElimination(Matrix A, Matrix B) {
@@ -10,7 +12,7 @@ public class GaussEliminationCalculator {
         
         int n = A.getNrColumns();
         
-        Matrix AB = A.appendMatrix(B);
+        Matrix AB = A.augment(B);
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
             double pivot = AB.get(rowIndex, rowIndex);
@@ -52,7 +54,7 @@ public class GaussEliminationCalculator {
         return AB;
     }
     
-    public static Vector solveEquations(Matrix A, Vector b) {
+    public static Vector solveEquation(Matrix A, Vector b) {
         
         Matrix AB = runGaussElimination(A, b.asMatrix());
         
@@ -85,6 +87,34 @@ public class GaussEliminationCalculator {
         }
         throw new IllegalArgumentException("No solution");
         
+    }
+    
+    public static Pair<Matrix, Matrix> createLUDecomposition(Matrix A) {
+        
+        if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
+        
+        int n = A.getNrColumns();
+        
+        Matrix L = Matrix.createIdentity(n);
+        
+        for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
+            double pivot = A.get(rowIndex, rowIndex);
+            Vector pivotRow = A.getRowVector(rowIndex);
+            if(pivot == 0) {
+                swapRowsDown(A, rowIndex);
+                pivot = A.get(rowIndex, rowIndex);
+                pivotRow = A.getRowVector(rowIndex);
+            }
+            for(int columnIndex=rowIndex+1;columnIndex<n;columnIndex++) {
+                Vector row = A.getRowVector(columnIndex);
+                double sss = row.get(rowIndex) / pivot;
+                L.set(columnIndex, rowIndex, sss);
+                row = row.minus(pivotRow.multiply(sss));
+                A.setRowVector(columnIndex, row);
+            }
+        }
+        
+        return Pair.of(L, A);
     }
     
 }
