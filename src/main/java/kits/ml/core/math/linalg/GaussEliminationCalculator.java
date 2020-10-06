@@ -1,7 +1,5 @@
 package kits.ml.core.math.linalg;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 public class GaussEliminationCalculator {
 
     public static Matrix runGaussElimination(Matrix A, Matrix B) {
@@ -15,19 +13,16 @@ public class GaussEliminationCalculator {
         Matrix AB = A.augment(B);
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
+            int pivotIndex = findPivotIndex(AB, rowIndex);
+            AB.swapRows(rowIndex, pivotIndex);
             double pivot = AB.get(rowIndex, rowIndex);
             Vector pivotRow = AB.getRowVector(rowIndex);
-            if(pivot == 0) {
-                swapRowsDown(AB, rowIndex);
-                pivot = AB.get(rowIndex, rowIndex);
-                pivotRow = AB.getRowVector(rowIndex);
-            }
             for(int columnIndex=rowIndex+1;columnIndex<n;columnIndex++) {
                 Vector row = AB.getRowVector(columnIndex);
                 row = row.minus(pivotRow.multiply(row.get(rowIndex) / pivot));
                 AB.setRowVector(columnIndex, row);
             }
-            //System.out.println(Ab);
+            //System.out.println(AB);
             //System.out.println();
         }
         
@@ -54,6 +49,24 @@ public class GaussEliminationCalculator {
         return AB;
     }
     
+    private static int findPivotIndex(Matrix Ab, int rowIndex) {
+        double max = Ab.get(rowIndex, rowIndex);
+        int rowIndexForMax = rowIndex;
+        for(int i=rowIndex+1;i<Ab.getNrRows();i++) {
+            double candidate = Math.abs(Ab.get(i, rowIndex));
+            if(candidate > max) {
+                max = candidate; 
+                rowIndexForMax = i;
+            }
+        }
+        if(max == 0) {
+            throw new IllegalArgumentException("No solution");    
+        } else {
+            return rowIndexForMax;
+        }
+        
+    }
+
     public static Vector solveEquation(Matrix A, Vector b) {
         
         Matrix AB = runGaussElimination(A, b.asMatrix());
@@ -68,16 +81,6 @@ public class GaussEliminationCalculator {
         return AB.getSubMatrix(0, A.getNrRows(), A.getNrRows(), 2 * A.getNrRows());
     }
     
-    private static void swapRowsDown(Matrix Ab, int rowIndex) {
-        for(int i=rowIndex+1;i<Ab.getNrRows();i++) {
-            if(Ab.get(i, rowIndex) != 0) {
-                Ab.swapRows(i, rowIndex);
-                return;
-            }
-        }
-        throw new IllegalArgumentException("No solution");
-    }
-    
     private static void swapRowsUp(Matrix Ab, int rowIndex) {
         for(int i=rowIndex-1;i>=0;i--) {
             if(Ab.get(i, rowIndex) != 0) {
@@ -89,34 +92,35 @@ public class GaussEliminationCalculator {
         
     }
     
-    // TODO handle rowchanges
-    public static Pair<Matrix, Matrix> createLUDecomposition(Matrix A) {
+    public static LUDecomposition createLUDecomposition(Matrix A) {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
         
         int n = A.getNrColumns();
         
-        Matrix L = Matrix.createIdentity(n);
+        Matrix L = Matrix.createZero(n);
         Matrix U = new Matrix(A);
+        Matrix P = Matrix.createIdentity(n);
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
+            int pivotIndex = findPivotIndex(U, rowIndex);
+            U.swapRows(rowIndex, pivotIndex);
+            P.swapRows(rowIndex, pivotIndex);
+            L.swapRows(rowIndex, pivotIndex);
             double pivot = U.get(rowIndex, rowIndex);
             Vector pivotRow = U.getRowVector(rowIndex);
-            if(pivot == 0) {
-                swapRowsDown(U, rowIndex);
-                pivot = U.get(rowIndex, rowIndex);
-                pivotRow = A.getRowVector(rowIndex);
-            }
-            for(int columnIndex=rowIndex+1;columnIndex<n;columnIndex++) {
-                Vector row = U.getRowVector(columnIndex);
-                double sss = row.get(rowIndex) / pivot;
-                L.set(columnIndex, rowIndex, sss);
-                row = row.minus(pivotRow.multiply(sss));
-                U.setRowVector(columnIndex, row);
+            for(int subRowIndex=rowIndex+1;subRowIndex<n;subRowIndex++) {
+                Vector row = U.getRowVector(subRowIndex);
+                double quotient = row.get(rowIndex) / pivot;
+                L.set(subRowIndex, rowIndex, quotient);
+                row = row.minus(pivotRow.multiply(quotient));
+                U.setRowVector(subRowIndex, row);
             }
         }
         
-        return Pair.of(L, U);
+        L = L.plus(Matrix.createIdentity(n));
+        
+        return new LUDecomposition(L, U, P);
     }
     
 }

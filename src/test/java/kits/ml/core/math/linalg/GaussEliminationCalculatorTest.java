@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Random;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 public class GaussEliminationCalculatorTest {
@@ -100,7 +99,7 @@ public class GaussEliminationCalculatorTest {
     }
     
     @Test
-    public void testLU() {
+    public void testLU1() {
         
         Matrix A = new Matrix(
             new double[] { 1,  4, -3},
@@ -108,25 +107,135 @@ public class GaussEliminationCalculatorTest {
             new double[] { 3,  4,  7}
         );
         
-        Pair<Matrix, Matrix> luPair = GaussEliminationCalculator.createLUDecomposition(A);
+        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+
+        Matrix P = luDecomposition.P();
+        Matrix L = luDecomposition.L();
+        Matrix U = luDecomposition.U();
         
-        Matrix L = luPair.getLeft();
-        Matrix U = luPair.getRight();
+        assertEquals(P.multiply(A), L.multiply(U));
+        
+        Matrix expectedP = new Matrix(
+                new double[] {0, 0, 1},
+                new double[] {0, 1, 0},
+                new double[] {1, 0, 0}
+            );
         
         Matrix expectedL = new Matrix(
-                new double[] { 1,  0,   0},
-                new double[] {-2,  1,   0},
-                new double[] { 3, -0.5, 1}
+                new double[] { 1,     0,    0},
+                new double[] {-0.667, 1,    0},
+                new double[] { 0.333, 0.25, 1}
             );
         
         Matrix expectedU = new Matrix(
-                new double[] {1,  4, -3},
-                new double[] {0, 16, -1},
-                new double[] {0,  0, 15.5}
+                new double[] {3,  4,     7   },
+                new double[] {0, 10.667, 9.667},
+                new double[] {0,  0,    -7.75}
             );
         
+        assertEquals(expectedP, P);
         assertEquals(expectedL, L);
         assertEquals(expectedU, U);
+    }
+    
+    @Test
+    public void testLU2() {
+        
+        Matrix A = new Matrix(
+            new double[] {1, 1, 1},
+            new double[] {0, 0, 1},
+            new double[] {2, 3, 4}
+        );
+        
+        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        
+        Matrix P = luDecomposition.P();
+        Matrix L = luDecomposition.L();
+        Matrix U = luDecomposition.U();
+        
+        assertEquals(P.multiply(A), L.multiply(U));
+        
+        Matrix expectedP = new Matrix(
+                new double[] {0, 0, 1},
+                new double[] {1, 0, 0},
+                new double[] {0, 1, 0}
+            );
+        
+        Matrix expectedL = new Matrix(
+                new double[] {1,   0, 0},
+                new double[] {0.5, 1, 0},
+                new double[] {0,   0, 1}
+            );
+        
+        Matrix expectedU = new Matrix(
+                new double[] {2,  3,    4},
+                new double[] {0, -0.5, -1},
+                new double[] {0,  0,    1}
+            );
+        
+        assertEquals(expectedP, P);
+        assertEquals(expectedL, L);
+        assertEquals(expectedU, U);
+    }
+    
+    @Test
+    public void testLUP2() {
+        
+        Matrix A = new Matrix(
+            new double[] {1, 2, 1},
+            new double[] {1, 2, 2},
+            new double[] {2, 1, 1}
+        );
+        
+        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        
+        Matrix L = luDecomposition.L();
+        Matrix U = luDecomposition.U();
+        Matrix P = luDecomposition.P();
+        
+        assertEquals(P.multiply(A), L.multiply(U));
+        
+        Matrix expectedP = new Matrix(
+                new double[] {0, 0, 1},
+                new double[] {0, 1, 0},
+                new double[] {1, 0, 0}
+            );
+        
+        Matrix expectedL = new Matrix(
+                new double[] {1,   0, 0},
+                new double[] {0.5, 1, 0},
+                new double[] {0.5, 1, 1}
+            );
+        
+        Matrix expectedU = new Matrix(
+                new double[] {2, 1,   1},
+                new double[] {0, 1.5, 1.5},
+                new double[] {0, 0,  -1}
+            );
+        
+        assertEquals(expectedP, P);
+        assertEquals(expectedL, L);
+        assertEquals(expectedU, U);
+        
+    }
+    
+    @Test
+    public void testLUP3() {
+            
+        Matrix A = new Matrix(
+            new double[] {2, 1, 1, 0},
+            new double[] {4, 3, 3, 1},
+            new double[] {8, 7, 9, 5},
+            new double[] {6, 7, 9, 8}
+        );
+        
+        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        
+        Matrix L = luDecomposition.L();
+        Matrix U = luDecomposition.U();
+        Matrix P = luDecomposition.P();
+        
+        assertEquals(P.multiply(A), L.multiply(U));
     }
     
 }

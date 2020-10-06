@@ -157,6 +157,8 @@ public class Matrix {
     public void swapRows(int i, int j) {
         if(i >= nrRows || j >= nrRows) throw new IllegalArgumentException("Illegal index. index must be < " + nrRows);
         
+        if(i == j) return;
+        
         Vector rowVector_i = getRowVector(i);
         Vector rowVector_j = getRowVector(j);
         setRowVector(i, rowVector_j);
