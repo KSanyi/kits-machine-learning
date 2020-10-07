@@ -22,8 +22,6 @@ public class GaussEliminationCalculator {
                 row = row.minus(pivotRow.multiply(row.get(rowIndex) / pivot));
                 AB.setRowVector(columnIndex, row);
             }
-            //System.out.println(AB);
-            //System.out.println();
         }
         
         for(int rowIndex=n-1;rowIndex>=0;rowIndex--) {
@@ -92,13 +90,21 @@ public class GaussEliminationCalculator {
         
     }
     
+    /**
+     * Create a Doolittle decomposition: the main diagonal of L is composed solely of 1s.
+     * The decomposition includes a permutation matrix as well: PA = LU or A = P*LU (as PP* = P*P = I)
+     * 
+     * With a sequence of elementary row operations we modify the matrix until we reach U.
+     * During this we capture these row operations in L. (Elementary row operations can be achieved by multiplying the matrix from left with an elementary matrix. Multiples of these elementary matrixes is a lower triangular matrix)
+     * Sometimes we need row swaps that we record in P. (Row swaps can be seen as multiplying from left with a row swap elementary matrix. Multiples of these elementary matrixes is a permutation matrix)
+     */
     public static LUDecomposition createLUDecomposition(Matrix A) {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
         
         int n = A.getNrColumns();
         
-        Matrix L = Matrix.createZero(n);
+        Matrix L = Matrix.createZero(n); // we don't want row swaps to mess up the diagonal, so we add the diagonal in the end
         Matrix U = new Matrix(A);
         Matrix P = Matrix.createIdentity(n);
         

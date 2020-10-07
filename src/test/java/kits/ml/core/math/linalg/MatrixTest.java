@@ -21,6 +21,20 @@ public class MatrixTest {
     }
     
     @Test
+    public void transpose() {
+        
+        Matrix A = new Matrix(
+            new double[] {1, 2},
+            new double[] {3, 4});
+        
+        Matrix expectedTranspose = new Matrix(
+                new double[] {1, 3},
+                new double[] {2, 4});
+        
+        assertEquals(expectedTranspose, A.transpose());
+    }
+    
+    @Test
     public void copyTest() {
         
         Matrix A = new Matrix(

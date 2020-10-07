@@ -253,4 +253,14 @@ public class Matrix {
         return new Matrix(values);
     }
 
+    public Matrix transpose() {
+        double[][] resultValues = new double[nrColumns][nrRows];
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+                resultValues[rowIndex][columnIndex] = values[columnIndex][rowIndex];
+            }
+        }
+        return new Matrix(resultValues);
+    }
+
 }
