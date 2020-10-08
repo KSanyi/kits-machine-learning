@@ -47,6 +47,10 @@ public class GaussEliminationCalculator {
         return AB;
     }
     
+    /**
+     *  Scaled pivoting: in this approach, the algorithm selects the largest entry as the pivot element to
+     *  prevent propagations of rounding errors.
+     */
     private static int findPivotIndex(Matrix Ab, int rowIndex) {
         double max = Ab.get(rowIndex, rowIndex);
         int rowIndexForMax = rowIndex;

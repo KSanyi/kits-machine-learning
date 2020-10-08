@@ -51,7 +51,7 @@ public class Matrix {
     public int getNrColumns() {
         return nrColumns;
     }
-
+    
     public void set(int rowIndex, int columnIndex, double value) {
         if(rowIndex >= nrRows || columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrColumns);
         values[rowIndex][columnIndex] = value;
@@ -60,6 +60,26 @@ public class Matrix {
     public double get(int rowIndex, int columnIndex) {
         if(rowIndex >= nrRows || columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrColumns);
         return values[rowIndex][columnIndex];
+    }
+    
+    public Vector getRowVector(int rowIndex) {
+        if(rowIndex >= nrRows) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows);
+        return new Vector(values[rowIndex]);
+    }
+    
+    public void setRowVector(int rowIndex, Vector row) {
+        for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            set(rowIndex, columnIndex, row.get(columnIndex));
+        }
+    }
+    
+    public Vector getColumnVector(int columnIndex) {
+        if(columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. columnIndex must be < " + nrColumns);
+        double[] columnVectorValues = new double[nrRows];
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            columnVectorValues[rowIndex] = values[rowIndex][columnIndex];
+        }
+        return new Vector(columnVectorValues);
     }
     
     public Matrix plus(Matrix other) {
@@ -116,26 +136,6 @@ public class Matrix {
         return result;
     }
     
-    public Vector getRowVector(int rowIndex) {
-        if(rowIndex >= nrRows) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows);
-        return new Vector(values[rowIndex]);
-    }
-    
-    public void setRowVector(int rowIndex, Vector row) {
-        for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-            set(rowIndex, columnIndex, row.get(columnIndex));
-        }
-    }
-    
-    public Vector getColumnVector(int columnIndex) {
-        if(columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. columnIndex must be < " + nrColumns);
-        double[] columnVectorValues = new double[nrRows];
-        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            columnVectorValues[rowIndex] = values[rowIndex][columnIndex];
-        }
-        return new Vector(columnVectorValues);
-    }
-    
     public Matrix augment(Vector b) {
         return augment(b.asMatrix());
     }
@@ -169,12 +169,35 @@ public class Matrix {
         return nrRows + " X " + nrColumns;
     }
     
-    public int nrRows() {
-        return nrRows;
+    private double findMaxValue() {
+        return allValuesStream().max().getAsDouble();
+    }
+    
+    public DoubleStream allValuesStream() {
+        return Arrays.stream(values)
+                .map(DoubleStream::of)
+                .reduce(DoubleStream::concat)
+                .get();
+    }
+    
+    public Matrix getSubMatrix(int rowStart, int rowEnd, int columnStart, int columnEnd) {
+        double[][] values = new double[rowEnd - rowStart][columnEnd - columnStart];
+        for(int rowIndex=rowStart;rowIndex<rowEnd;rowIndex++) {
+            for(int columnIndex=columnStart;columnIndex<columnEnd;columnIndex++) {
+                values[rowIndex - rowStart][columnIndex - columnStart] = this.values[rowIndex][columnIndex];
+            }   
+        }
+        return new Matrix(values);
     }
 
-    public int nrColumns() {
-        return nrColumns;
+    public Matrix transpose() {
+        double[][] resultValues = new double[nrColumns][nrRows];
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+                resultValues[rowIndex][columnIndex] = values[columnIndex][rowIndex];
+            }
+        }
+        return new Matrix(resultValues);
     }
     
     @Override
@@ -187,7 +210,12 @@ public class Matrix {
         List<Double> allOtherValues = other.allValuesStream().mapToObj(d -> d).collect(toList());
         return IntStream.range(0, allValues.size()).allMatch(index -> Math.abs(allValues.get(index) - allOtherValues.get(index)) < EPSILON);
     }
-
+    
+    @Override
+    public int hashCode() {
+        return toString(2).hashCode();
+    }
+    
     @Override
     public String toString() {
         return toString(2);
@@ -210,24 +238,14 @@ public class Matrix {
         return stringValues.stream().map(row -> String.join(" ", row)).collect(joining("\n"));
     }
     
-    private double findMaxValue() {
-        return allValuesStream().max().getAsDouble();
-    }
-    
-    private DoubleStream allValuesStream() {
-        return Arrays.stream(values)
-                .map(DoubleStream::of)
-                .reduce(DoubleStream::concat)
-                .get();
-    }
-    
-    @Override
-    public int hashCode() {
-        return toString(2).hashCode();
-    }
+    // factory methods
     
     public static Matrix createIdentity(int n) {
         return createDiagonal(DoubleStream.generate(() -> 1.0).limit(n).toArray());
+    }
+    
+    public static Matrix createZero(int n) {
+        return new Matrix(n, n);
     }
     
     public static Matrix createDiagonal(double ... values) {
@@ -237,30 +255,6 @@ public class Matrix {
             matrix.set(index, index, values[index]);
         }
         return matrix;
-    }
-    
-    public static Matrix createZero(int n) {
-        return new Matrix(n, n);
-    }
-
-    public Matrix getSubMatrix(int rowStart, int rowEnd, int columnStart, int columnEnd) {
-        double[][] values = new double[rowEnd - rowStart][columnEnd - columnStart];
-        for(int rowIndex=rowStart;rowIndex<rowEnd;rowIndex++) {
-            for(int columnIndex=columnStart;columnIndex<columnEnd;columnIndex++) {
-                values[rowIndex - rowStart][columnIndex - columnStart] = this.values[rowIndex][columnIndex];
-            }   
-        }
-        return new Matrix(values);
-    }
-
-    public Matrix transpose() {
-        double[][] resultValues = new double[nrColumns][nrRows];
-        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-                resultValues[rowIndex][columnIndex] = values[columnIndex][rowIndex];
-            }
-        }
-        return new Matrix(resultValues);
     }
 
 }
