@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -194,7 +195,17 @@ public class Matrix {
         double[][] resultValues = new double[nrColumns][nrRows];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
             for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-                resultValues[rowIndex][columnIndex] = values[columnIndex][rowIndex];
+                resultValues[columnIndex][rowIndex] = values[rowIndex][columnIndex];
+            }
+        }
+        return new Matrix(resultValues);
+    }
+    
+    public Matrix map(BiFunction<Integer, Integer, Double> mapper) {
+        double[][] resultValues = new double[nrRows][nrColumns];
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+                resultValues[rowIndex][columnIndex] = mapper.apply(rowIndex, columnIndex);
             }
         }
         return new Matrix(resultValues);
@@ -239,6 +250,27 @@ public class Matrix {
     }
     
     // factory methods
+    
+    public static Matrix fromColumnVectors(Vector ... coulumnVectors) {
+        
+        if(coulumnVectors.length == 0) throw new IllegalArgumentException("No values provided");
+        
+        int nrColumns = coulumnVectors.length;
+        int nrRows = coulumnVectors[0].length();
+        
+        if(Stream.of(coulumnVectors).anyMatch(column -> column.length() != nrRows)) throw new IllegalArgumentException("All columns must contain the same number of values");
+        
+        double[][] values = new double[nrRows][nrColumns];
+        
+        for (int rowIndex=0;rowIndex<values.length;rowIndex++) {
+            values[rowIndex] = new double[nrColumns];
+            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+                values[rowIndex][columnIndex] = coulumnVectors[columnIndex].get(rowIndex);
+            }
+        }
+        
+        return new Matrix(values);
+    }
     
     public static Matrix createIdentity(int n) {
         return createDiagonal(DoubleStream.generate(() -> 1.0).limit(n).toArray());

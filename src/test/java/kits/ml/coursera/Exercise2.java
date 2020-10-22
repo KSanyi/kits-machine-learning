@@ -2,12 +2,12 @@ package kits.ml.coursera;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.DoubleStream;
 
 import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.LogisticRegressionModel;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Vector;
 
 public class Exercise2 {
 
@@ -78,10 +78,9 @@ public class Exercise2 {
       
         System.out.println("Cost: " + model.calculateCost(learningDataSet));
         
-        double[] gradient = model.calculateGradient(learningDataSet);
+        Vector gradient = model.calculateGradient(learningDataSet);
         
-        System.out.println("Gradient: ");
-        DoubleStream.of(gradient).forEach(value -> System.out.format("%.5f ", value));
+        System.out.println("Gradient: " + gradient);
         System.out.println();
         
         System.out.println("Predictions: ");
@@ -104,10 +103,9 @@ public class Exercise2 {
         
         System.out.println("Cost: " + model.calculateCost(learningDataSet));
         
-        double[] gradient = model.calculateGradient(learningDataSet);
+        Vector gradient = model.calculateGradient(learningDataSet);
         
-        System.out.println("Gradient: ");
-        DoubleStream.of(gradient).forEach(value -> System.out.format("%.5f ", value));
+        System.out.println("Gradient: " + gradient);
     }
 
 }

@@ -22,6 +22,19 @@ public class MatrixTest {
     }
     
     @Test
+    public void fromColumnVectors() {
+        
+        Matrix A = Matrix.fromColumnVectors(new Vector(1, 2, 3), new Vector(4, 5, 6));
+        
+        Matrix expected = new Matrix(
+            new double[] {1, 4},
+            new double[] {2, 5},
+            new double[] {3, 6});
+        
+        assertEquals(expected, A);
+    }
+    
+    @Test
     public void equality() {
         
         Matrix A = new Matrix(
@@ -45,14 +58,29 @@ public class MatrixTest {
     public void transpose() {
         
         Matrix A = new Matrix(
+            new double[] {1, 2, 3},
+            new double[] {4, 5, 6});
+        
+        Matrix expectedTranspose = new Matrix(
+                new double[] {1, 4},
+                new double[] {2, 5},
+                new double[] {3, 6});
+        
+        assertEquals(expectedTranspose, A.transpose());
+    }
+    
+    @Test
+    public void map() {
+        
+        Matrix A = new Matrix(
             new double[] {1, 2},
             new double[] {3, 4});
         
-        Matrix expectedTranspose = new Matrix(
-                new double[] {1, 3},
-                new double[] {2, 4});
+        Matrix expected = new Matrix(
+                new double[] {2, 4},
+                new double[] {6, 8});
         
-        assertEquals(expectedTranspose, A.transpose());
+        assertEquals(expected, A.map((i,j) -> A.get(i, j) * 2.0));
     }
     
     @Test

@@ -2,12 +2,11 @@ package kits.ml.coursera;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.DoubleStream;
 
-import Jama.Matrix;
 import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Matrix;
 import kits.ml.neuralnet.NeuralNet;
 
 public class Exercise4 {
@@ -77,7 +76,7 @@ public class Exercise4 {
     private static void task3() {
         System.out.println("Task 3");
         Matrix XGrad = MLMath.sigmoidGradient(X);
-        DoubleStream.of(XGrad.getColumnPackedCopy()).forEach(x -> System.out.format("%.5f ", x));
+        System.out.println(XGrad);
         System.out.println();
     }
 }

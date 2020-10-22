@@ -23,10 +23,7 @@ public class MLStat {
         return IntStream.range(0, values.length).mapToDouble(i -> standardizers[i].standardize(values[i])).toArray();
     }
 
-    public static class Standardizer {
-
-        private final double average;
-        private final double stdev;
+    public static record Standardizer(double average, double stdev) {
 
         public Standardizer(double[] values) {
             average = MLStat.average(values);

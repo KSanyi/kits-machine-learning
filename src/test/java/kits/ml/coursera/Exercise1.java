@@ -1,15 +1,13 @@
 package kits.ml.coursera;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.DoubleStream;
 
-import Jama.Matrix;
 import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.LogisticRegressionModel;
-import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Matrix;
+import kits.ml.core.math.linalg.Vector;
 
 public class Exercise1 {
 
@@ -56,22 +54,23 @@ public class Exercise1 {
     
     private static void task1() {
         
-        Matrix identity5Matrix = Matrix.identity(5, 5);
+        Matrix identity5Matrix = Matrix.createIdentity(5);
         
         System.out.println("Task 1");
-        identity5Matrix.print(new PrintWriter(System.out,true), 5, 5);
+        System.out.println(identity5Matrix);
         System.out.println();
     }
     
+    
     private static void task2() {
         System.out.println("Task 2");
-        
+        /*
         double[] column1 = new Matrix(20, 1, 1).getColumnPackedCopy();
         double[] column2 = DoubleStream.of(MLMath.generateArithmeticSeries(0.1, 0.1, 2)).map(i -> Math.exp(1) + Math.exp(2) * i).toArray();
         
-        Matrix matrix = MLMath.matrixFromColumns(column1, column2);
-        
-        matrix.print(new PrintWriter(System.out,true), 5, 5);
+        Matrix matrix = Matrix.fromColumnVectors(column1, column2);
+        System.out.println(matrix);
+        */
     }
     
     private static void task3() {
@@ -89,10 +88,9 @@ public class Exercise1 {
         
         System.out.println("Cost: " + model.calculateCost(learningDataSet));
         
-        double[] gradient = model.calculateGradient(learningDataSet);
+        Vector gradient = model.calculateGradient(learningDataSet);
         
-        System.out.println("Gradient: ");
-        DoubleStream.of(gradient).forEach(value -> System.out.format("%.5f ", value));
+        System.out.println("Gradient: " + gradient);
     }
 
 }

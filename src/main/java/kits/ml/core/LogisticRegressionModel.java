@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import Jama.Matrix;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Matrix;
+import kits.ml.core.math.linalg.Vector;
 
 public class LogisticRegressionModel {
 
@@ -13,7 +14,7 @@ public class LogisticRegressionModel {
 
     private final int inputDimension;
 
-    double[] parameters;
+    Vector parameters;
 
     private final double lambda;
 
@@ -25,14 +26,14 @@ public class LogisticRegressionModel {
         this.inputDimension = inputDimension;
         this.steps = steps;
         this.lambda = lambda;
-        parameters = new double[inputDimension + 1];
+        parameters = new Vector(inputDimension + 1);
     }
 
     public void setParameters(double... parameters) {
         if (parameters.length != inputDimension + 1) {
             throw new IllegalArgumentException("Parameters must have dimension " + (inputDimension + 1));
         }
-        this.parameters = parameters;
+        this.parameters = new Vector(parameters);
     }
 
     public void learn(List<LearningData> learningDataSet) {
@@ -43,30 +44,30 @@ public class LogisticRegressionModel {
         learningDataSet.stream().map(learningData -> learningData.input).forEach(this::checkDimension);
 
         Matrix X = getInputMatrix(learningDataSet);
-        Matrix y = getOutputVector(learningDataSet);
-        Matrix theta = new Matrix(parameters, parameters.length);
+        Vector y = getOutputVector(learningDataSet);
+        Vector theta = parameters;
 
         for (int i = 0; i < steps; i++) {
-            parameters = theta.getColumnPackedCopy();
+            parameters = theta;
             // System.out.println("Params: " + Arrays.toString(parameters));
             // System.out.println("Cost: " + calculateCost(learningDataSet));
 
             /**
              * theta - alpha / n * X' * (sigmoid(X * theta) - y)
              */
-            Matrix gradient = X.transpose().times(MLMath.sigmoid(X.times(theta)).minus(y)).times(1d / learningDataSet.size());
+            Vector gradient = X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).multiply(1d / learningDataSet.size());
             double alpha = findAlpha(learningDataSet, gradient, theta);
-            theta = theta.minus(gradient.times(alpha));
+            theta = theta.minus(gradient.multiply(alpha));
         }
 
-        parameters = theta.getColumnPackedCopy();
+        parameters = theta;
 
-        for (double param : parameters) {
-            System.out.format("%.5f ", param);
+        for (int i=0;i<parameters.length();i++) {
+            System.out.format("%.5f ", parameters.get(i));
         }
     }
 
-    private static double findAlpha(List<LearningData> learningDataSet, Matrix gradient, Matrix currentTheta) {
+    private static double findAlpha(List<LearningData> learningDataSet, Vector gradient, Vector currentTheta) {
         return 0.0001;
 
         /*
@@ -84,19 +85,22 @@ public class LogisticRegressionModel {
          */
     }
 
-    private Matrix getInputMatrix(List<LearningData> learningDataSet) {
-        double[] values = learningDataSet.stream().flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values))).toArray();
-        return new Matrix(values, inputDimension + 1).transpose();
+    private static Matrix getInputMatrix(List<LearningData> learningDataSet) {
+        
+        double[][] values = learningDataSet.stream()
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values)).toArray())
+                .toArray(double[][]::new);
+        return new Matrix(values);
     }
 
-    private static Matrix getOutputVector(List<LearningData> learningDataSet) {
+    private static Vector getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output).toArray();
-        return new Matrix(values, learningDataSet.size());
+        return new Vector(values);
     }
 
     public double calculateOutput(Input input) {
         checkDimension(input);
-        return MLMath.sigmoid(parameters[0] + IntStream.range(0, inputDimension).mapToDouble(i -> parameters[i + 1] * input.values[i]).sum());
+        return MLMath.sigmoid(parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.values[i]).sum());
     }
 
     public int predict(Input input) {
@@ -108,7 +112,7 @@ public class LogisticRegressionModel {
         int n = learningDataSet.size();
 
         double cost = learningDataSet.stream().mapToDouble(this::calculateCost).sum() / n;
-        DoubleStream paramsToRegularize = IntStream.range(1, parameters.length).mapToDouble(i -> parameters[i]);
+        DoubleStream paramsToRegularize = IntStream.range(1, parameters.length()).mapToDouble(i -> parameters.get(i));
         double regularizedCost = lambda * paramsToRegularize.map(MLMath::square).sum() / (2 * n);
         return cost + regularizedCost;
     }
@@ -121,16 +125,16 @@ public class LogisticRegressionModel {
         return -output * Math.log(calculatedOutput) - (1 - output) * Math.log(1 - calculatedOutput);
     }
 
-    public double[] calculateGradient(List<LearningData> learningDataSet) {
+    public Vector calculateGradient(List<LearningData> learningDataSet) {
         Matrix X = getInputMatrix(learningDataSet);
-        Matrix y = getOutputVector(learningDataSet);
+        Vector y = getOutputVector(learningDataSet);
 
-        Matrix theta = new Matrix(parameters, parameters.length);
-        Matrix thetaForRegularization = new Matrix(parameters, parameters.length);
-        thetaForRegularization.set(0, 0, 0);
+        Vector theta = new Vector(parameters);
+        Vector thetaForRegularization = new Vector(parameters);
+        thetaForRegularization.set(0, 0);
         int n = learningDataSet.size();
 
-        return X.transpose().times(MLMath.sigmoid(X.times(theta)).minus(y)).times(1d / n).plus(thetaForRegularization.times(lambda / n)).getColumnPackedCopy();
+        return X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).multiply(1d / n).plus(thetaForRegularization.multiply(lambda / n));
     }
 
     private void checkDimension(Input input) {

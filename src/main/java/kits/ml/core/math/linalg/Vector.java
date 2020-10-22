@@ -3,6 +3,7 @@ package kits.ml.core.math.linalg;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
+import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -20,6 +21,11 @@ public class Vector {
     
     public Vector(double ... values) {
         this.values = values.clone();
+        length = values.length;
+    }
+    
+    public Vector(Vector other) {
+        this.values = other.values.clone();
         length = values.length;
     }
     
@@ -103,6 +109,14 @@ public class Vector {
             values[i][0] = this.values[i];
         }
         return new Matrix(values);
+    }
+    
+    public Vector map(Function<Integer, Double> mapper) {
+        double[] resultValues = new double[length];
+        for(int i=0;i<length;i++) {
+            resultValues[i] = mapper.apply(i);
+        }
+        return new Vector(resultValues);
     }
     
     @Override

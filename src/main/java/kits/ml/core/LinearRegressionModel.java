@@ -1,14 +1,14 @@
 package kits.ml.core;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import Jama.Matrix;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.MLStat;
 import kits.ml.core.math.MLStat.Standardizer;
+import kits.ml.core.math.linalg.Matrix;
+import kits.ml.core.math.linalg.Vector;
 
 public class LinearRegressionModel implements MLModel {
 
@@ -17,7 +17,7 @@ public class LinearRegressionModel implements MLModel {
 
     private final int inputDimension;
 
-    private double[] parameters;
+    private Vector parameters;
 
     private Standardizer[] standardizers;
 
@@ -33,14 +33,14 @@ public class LinearRegressionModel implements MLModel {
         this.inputDimension = inputDimension;
         this.alpha = alpha;
         this.steps = steps;
-        parameters = new double[inputDimension + 1];
+        parameters = new Vector(inputDimension + 1);
     }
 
     public void setParameters(double ... parameters) {
         if (parameters.length != inputDimension + 1) {
             throw new IllegalArgumentException("Parameters must have dimension " + (inputDimension + 1));
         }
-        this.parameters = parameters;
+        this.parameters = new Vector(parameters);
         this.standardizers = IntStream.range(0, parameters.length - 1).mapToObj(i -> MLStat.NoOpStandardizer).toArray(Standardizer[]::new);
     }
 
@@ -51,13 +51,12 @@ public class LinearRegressionModel implements MLModel {
         standardizers = createStandardizers(learningDataSet);
 
         Matrix X = getStandardizedInputMatrix(learningDataSet, standardizers);
-        Matrix y = getOutputVector(learningDataSet);
-        Matrix theta = new Matrix(parameters, parameters.length);
+        Vector y = getOutputVector(learningDataSet);
+        Vector theta = parameters;
 
         double prevCost = 100;
         for(int i=0;i<steps;i++) {
-            parameters = theta.getColumnPackedCopy();
-            System.out.println("Params: " + Arrays.toString(parameters));
+            System.out.println("Params: " + theta);
             double cost = calculateCost(learningDataSet);
             System.out.println("Cost: " + cost);
             System.out.println("Cost decrement: " + (prevCost - cost));
@@ -66,10 +65,10 @@ public class LinearRegressionModel implements MLModel {
             /**
              * theta - alpha / n * X' * (X * theta - y)
              */
-            theta = theta.minus(X.transpose().times(X.times(theta).minus(y)).times(alpha / learningDataSet.size()));
+            theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).multiply(alpha / learningDataSet.size()));
         }
 
-        parameters = theta.getColumnPackedCopy();
+        parameters = theta;
     }
 
     private Standardizer[] createStandardizers(List<LearningData> learningDataSet) {
@@ -84,24 +83,24 @@ public class LinearRegressionModel implements MLModel {
                 .toArray();
     }
 
-    private Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
-        double[] values = learningDataSet.stream()
-                .flatMapToDouble(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input.values, standardizers))))
-                .toArray();
-        return new Matrix(values, inputDimension + 1).transpose();
+    private static Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
+        double[][] values = learningDataSet.stream()
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input.values, standardizers))).toArray())
+                .toArray(double[][]::new);
+        return new Matrix(values);
     }
 
-    private static Matrix getOutputVector(List<LearningData> learningDataSet) {
+    private static Vector getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.output)
                 .toArray();
-        return new Matrix(values, learningDataSet.size());
+        return new Vector(values);
     }
 
     @Override
     public double calculateOutput(Input input) {
         checkDimension(input);
-        return parameters[0] + IntStream.range(0, inputDimension).mapToDouble(i -> parameters[i + 1] * standardizers[i].standardize(input.values[i])).sum();
+        return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * standardizers[i].standardize(input.values[i])).sum();
     }
 
     @Override
