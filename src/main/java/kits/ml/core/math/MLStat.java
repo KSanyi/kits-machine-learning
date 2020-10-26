@@ -26,8 +26,7 @@ public class MLStat {
     public static record Standardizer(double average, double stdev) {
 
         public Standardizer(double[] values) {
-            average = MLStat.average(values);
-            stdev = MLStat.stDev(values);
+            this(MLStat.average(values), MLStat.stDev(values));
         }
 
         public double standardize(double value) {
@@ -35,8 +34,7 @@ public class MLStat {
         }
 
         Standardizer() {
-            average = 0;
-            stdev = 1;
+            this(0, 1);
         }
     }
 
