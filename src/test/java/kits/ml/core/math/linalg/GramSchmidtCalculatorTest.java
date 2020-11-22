@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import kits.ml.core.math.linalg.Decomposition.QR;
+
 public class GramSchmidtCalculatorTest {
 
     private static final double EPSILON = 0.001;
@@ -21,17 +23,54 @@ public class GramSchmidtCalculatorTest {
         Matrix Q = new Matrix(
             new double[] {0.408,  0.862,  0.302},
             new double[] {0.408,  0.123, -0.905},
-            new double[] {0.816, -0.492,  0.302});
+            new double[] {0.816, -0.492,  0.302}
+        );
         
         assertEquals(Q, GramSchmidtCalculator.createOrtoNormalBaseMatrix(A));
         
-        assertEquals(0, Q.getColumnVector(0).scalarProduct(Q.getColumnVector(1)), EPSILON);
-        assertEquals(0, Q.getColumnVector(0).scalarProduct(Q.getColumnVector(2)), EPSILON);
-        assertEquals(0, Q.getColumnVector(1).scalarProduct(Q.getColumnVector(2)), EPSILON);
+        assertOrtonormal(Q);
+    }
+    
+    private static void assertOrtonormal(Matrix A) {
+        assertEquals(0, A.getColumnVector(0).scalarProduct(A.getColumnVector(1)), EPSILON);
+        assertEquals(0, A.getColumnVector(0).scalarProduct(A.getColumnVector(2)), EPSILON);
+        assertEquals(0, A.getColumnVector(1).scalarProduct(A.getColumnVector(2)), EPSILON);
         
-        assertEquals(1, Q.getColumnVector(0).norm(), EPSILON);
-        assertEquals(1, Q.getColumnVector(1).norm(), EPSILON);
-        assertEquals(1, Q.getColumnVector(2).norm(), EPSILON);
+        assertEquals(1, A.getColumnVector(0).norm(), EPSILON);
+        assertEquals(1, A.getColumnVector(1).norm(), EPSILON);
+        assertEquals(1, A.getColumnVector(2).norm(), EPSILON);
+    }
+    
+    @Test
+    public void testQR() {
+        
+        Matrix A = new Matrix(
+            new double[] {1, 2,  1},
+            new double[] {1, 1, -1},
+            new double[] {2, 1,  2}
+        );
+        
+        QR qr = GramSchmidtCalculator.createQRDecomposition(A);
+        
+        
+        Matrix Q = new Matrix(
+            new double[] {0.408,  0.862,  0.302},
+            new double[] {0.408,  0.123, -0.905},
+            new double[] {0.816, -0.492,  0.302}
+        );
+        
+        Matrix R = new Matrix(
+            new double[] {2.449, 2.041,  1.633},
+            new double[] {0,     1.354, -0.246},
+            new double[] {0,     0,      1.809}
+        );
+        
+        assertEquals(Q, qr.Q());
+        assertEquals(R, qr.R());
+        
+        assertEquals(A, qr.Q().multiply(qr.R()));
+        
+        assertOrtonormal(Q);
     }
     
     @Test

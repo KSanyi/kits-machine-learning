@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import kits.ml.core.math.linalg.Decomposition.LU;
+
 public class GaussEliminationCalculatorTest {
 
     @Test
@@ -107,7 +109,7 @@ public class GaussEliminationCalculatorTest {
             new double[] { 3,  4,  7}
         );
         
-        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        LU luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
 
         Matrix P = luDecomposition.P();
         Matrix L = luDecomposition.L();
@@ -147,7 +149,7 @@ public class GaussEliminationCalculatorTest {
             new double[] {2, 3, 4}
         );
         
-        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        LU luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
         
         Matrix P = luDecomposition.P();
         Matrix L = luDecomposition.L();
@@ -187,7 +189,7 @@ public class GaussEliminationCalculatorTest {
             new double[] {2, 1, 1}
         );
         
-        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        LU luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
         
         Matrix L = luDecomposition.L();
         Matrix U = luDecomposition.U();
@@ -229,7 +231,7 @@ public class GaussEliminationCalculatorTest {
             new double[] {6, 7, 9, 8}
         );
         
-        LUDecomposition luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
+        LU luDecomposition = GaussEliminationCalculator.createLUDecomposition(A);
         
         Matrix L = luDecomposition.L();
         Matrix U = luDecomposition.U();

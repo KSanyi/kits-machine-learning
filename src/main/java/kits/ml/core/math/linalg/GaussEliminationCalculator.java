@@ -1,5 +1,7 @@
 package kits.ml.core.math.linalg;
 
+import kits.ml.core.math.linalg.Decomposition.LU;
+
 public class GaussEliminationCalculator {
 
     public static Matrix runGaussElimination(Matrix A, Matrix B) {
@@ -102,7 +104,7 @@ public class GaussEliminationCalculator {
      * During this we capture these row operations in L. (Elementary row operations can be achieved by multiplying the matrix from left with an elementary matrix. Multiples of these elementary matrixes is a lower triangular matrix)
      * Sometimes we need row swaps that we record in P. (Row swaps can be seen as multiplying from left with a row swap elementary matrix. Multiples of these elementary matrixes is a permutation matrix)
      */
-    public static LUDecomposition createLUDecomposition(Matrix A) {
+    public static LU createLUDecomposition(Matrix A) {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
         
@@ -130,7 +132,7 @@ public class GaussEliminationCalculator {
         
         L = L.plus(Matrix.createIdentity(n));
         
-        return new LUDecomposition(L, U, P);
+        return new LU(L, U, P);
     }
     
 }
