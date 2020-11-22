@@ -251,6 +251,10 @@ public class Matrix {
     
     // factory methods
     
+    public static Matrix fromColumnVectors(List<Vector> coulumnVectors) {
+        return fromColumnVectors(coulumnVectors.toArray(new Vector[0]));
+    }
+    
     public static Matrix fromColumnVectors(Vector ... coulumnVectors) {
         
         if(coulumnVectors.length == 0) throw new IllegalArgumentException("No values provided");

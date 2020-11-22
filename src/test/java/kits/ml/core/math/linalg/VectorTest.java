@@ -57,4 +57,11 @@ public class VectorTest {
         assertEquals(32, vector1.pseudoScalarProduct(vector2));
     }
     
+    @Test
+    public void norm() {
+        assertEquals(0, new Vector(0).norm());
+        assertEquals(3, new Vector(-3.0).norm());
+        assertEquals(5, new Vector(1, 2, 2, 4).norm());
+    }
+    
 }

@@ -32,6 +32,10 @@ public class Vector {
     public int length() {
         return length;
     }
+    
+    public double norm() {
+        return Math.sqrt(this.scalarProduct(this));
+    }
 
     public void set(int index, double value) {
         if(index >= length) throw new IllegalArgumentException("Illegal index. Index must be < " + length);
