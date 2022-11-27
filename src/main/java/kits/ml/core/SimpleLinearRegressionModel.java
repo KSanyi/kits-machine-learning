@@ -22,7 +22,7 @@ public class SimpleLinearRegressionModel implements MLModel {
 
     @Override
     public void learn(List<LearningData> learningDataSet) {
-        learningDataSet.stream().map(learningData -> learningData.input).forEach(this::checkDimension);
+        learningDataSet.stream().map(learningData -> learningData.input()).forEach(this::checkDimension);
 
         Matrix X = getInputMatrix(learningDataSet);
         Vector y = getOutputVector(learningDataSet);
@@ -40,14 +40,14 @@ public class SimpleLinearRegressionModel implements MLModel {
 
     private static Matrix getInputMatrix(List<LearningData> learningDataSet) {
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values)).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input().values())).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
 
     private static Vector getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
-                .mapToDouble(learningData -> learningData.output)
+                .mapToDouble(learningData -> learningData.output())
                 .toArray();
         return new Vector(values);
     }
@@ -55,14 +55,14 @@ public class SimpleLinearRegressionModel implements MLModel {
     @Override
     public double calculateOutput(Input input) {
         checkDimension(input);
-        return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.values[i]).sum();
+        return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.get(i)).sum();
     }
 
     @Override
     public double calculateCost(List<LearningData> learningDataSet) {
         int n = learningDataSet.size();
         return learningDataSet.stream()
-                .mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input)))
+                .mapToDouble(learningData -> MLMath.square(learningData.output() - calculateOutput(learningData.input())))
                 .sum() / (2 * n);
     }
 

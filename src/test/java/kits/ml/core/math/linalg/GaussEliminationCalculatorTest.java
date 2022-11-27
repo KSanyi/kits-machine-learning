@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import kits.ml.core.math.linalg.Decomposition.LU;
 
+@SuppressWarnings("static-method")
 public class GaussEliminationCalculatorTest {
 
     @Test
@@ -62,8 +63,8 @@ public class GaussEliminationCalculatorTest {
     public void testRandomEquationsWithIntegerCoefficients() {
         
         for(int i=0;i<100;i++) {
-            Matrix A = MatrixUtils.generateRandomIntMatrix(100, 100, 100);
-            Vector x = MatrixUtils.generateRandomIntVector(100, 100);
+            Matrix A = RandomUtils.generateRandomIntMatrix(100, 100, 100);
+            Vector x = RandomUtils.generateRandomIntVector(100, 100);
             Vector b = A.multiply(x);
             Vector result = GaussEliminationCalculator.solveEquation(A, b);
             
@@ -77,8 +78,8 @@ public class GaussEliminationCalculatorTest {
         Random random = new Random();
         
         for(int i=0;i<100;i++) {
-            Matrix A = MatrixUtils.generateRandomMatrix(100, 100, () -> random.nextDouble() * 100);
-            Vector x = MatrixUtils.generateRandomVector(100, () -> random.nextDouble() * 100);
+            Matrix A = RandomUtils.generateRandomMatrix(100, 100, () -> random.nextDouble() * 100);
+            Vector x = RandomUtils.generateRandomVector(100, () -> random.nextDouble() * 100);
             Vector b = A.multiply(x);
             Vector result = GaussEliminationCalculator.solveEquation(A, b);
             
@@ -97,7 +98,7 @@ public class GaussEliminationCalculatorTest {
         
         Matrix inverse = GaussEliminationCalculator.calculateInverse(A);
         
-        assertEquals(Matrix.createIdentity(3), A.multiply(inverse));
+        assertEquals(MatrixFactory.createIdentity(3), A.multiply(inverse));
     }
     
     @Test

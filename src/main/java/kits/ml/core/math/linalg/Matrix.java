@@ -65,6 +65,7 @@ public class Matrix {
     
     public Vector getRowVector(int rowIndex) {
         if(rowIndex >= nrRows) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows);
+        // creating a new object with array copy is expensive, makes multiplications slow
         return new Vector(values[rowIndex]);
     }
     
@@ -80,6 +81,7 @@ public class Matrix {
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
             columnVectorValues[rowIndex] = values[rowIndex][columnIndex];
         }
+        // creating a new object with array copy is expensive, makes multiplications slow
         return new Vector(columnVectorValues);
     }
     
@@ -104,7 +106,7 @@ public class Matrix {
         return new Matrix(resultValues);
     }
     
-    public Matrix multiply(double lambda) {
+    public Matrix scale(double lambda) {
         double[][] resultValues = new double[nrRows][nrColumns];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
             for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
@@ -114,7 +116,8 @@ public class Matrix {
         return new Matrix(resultValues);
     }
     
-    public Matrix multiply(Matrix other) {
+    // just for educational purposes, this is 3 times slower than the below one
+    public Matrix multiplySlow(Matrix other) {
         if(nrColumns != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
         
         double[][] resultValues = new double[nrRows][other.nrColumns];
@@ -124,6 +127,23 @@ public class Matrix {
             }
         }
         return new Matrix(resultValues);
+    }
+    
+    public Matrix multiply(Matrix other) {
+        if(nrColumns != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
+        
+        double[][] product = new double[nrRows][other.nrColumns];
+        
+        for (int i = 0; i < nrRows; i++) {
+            for (int j = 0; j < other.nrRows; j++) {
+                double elemIJ = values[i][j];
+                for(int k = 0; k < other.nrColumns; k++) {
+                    product[i][k] += elemIJ * other.values[j][k];
+                }
+            }
+        }
+        
+        return new Matrix(product);
     }
     
     public Vector multiply(Vector x) {
@@ -247,50 +267,6 @@ public class Matrix {
         }
         
         return stringValues.stream().map(row -> String.join(" ", row)).collect(joining("\n"));
-    }
-    
-    // factory methods
-    
-    public static Matrix fromColumnVectors(List<Vector> coulumnVectors) {
-        return fromColumnVectors(coulumnVectors.toArray(new Vector[0]));
-    }
-    
-    public static Matrix fromColumnVectors(Vector ... coulumnVectors) {
-        
-        if(coulumnVectors.length == 0) throw new IllegalArgumentException("No values provided");
-        
-        int nrColumns = coulumnVectors.length;
-        int nrRows = coulumnVectors[0].length();
-        
-        if(Stream.of(coulumnVectors).anyMatch(column -> column.length() != nrRows)) throw new IllegalArgumentException("All columns must contain the same number of values");
-        
-        double[][] values = new double[nrRows][nrColumns];
-        
-        for (int rowIndex=0;rowIndex<values.length;rowIndex++) {
-            values[rowIndex] = new double[nrColumns];
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-                values[rowIndex][columnIndex] = coulumnVectors[columnIndex].get(rowIndex);
-            }
-        }
-        
-        return new Matrix(values);
-    }
-    
-    public static Matrix createIdentity(int n) {
-        return createDiagonal(DoubleStream.generate(() -> 1.0).limit(n).toArray());
-    }
-    
-    public static Matrix createZero(int n) {
-        return new Matrix(n, n);
-    }
-    
-    public static Matrix createDiagonal(double ... values) {
-        int n = values.length;
-        Matrix matrix = new Matrix(n, n);
-        for(int index=0;index<n;index++) {
-            matrix.set(index, index, values[index]);
-        }
-        return matrix;
     }
 
 }

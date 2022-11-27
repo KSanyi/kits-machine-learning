@@ -46,7 +46,7 @@ public class LinearRegressionModel implements MLModel {
 
     @Override
     public void learn(List<LearningData> learningDataSet) {
-        learningDataSet.stream().map(learningData -> learningData.input).forEach(this::checkDimension);
+        learningDataSet.stream().map(learningData -> learningData.input()).forEach(this::checkDimension);
 
         standardizers = createStandardizers(learningDataSet);
 
@@ -58,17 +58,16 @@ public class LinearRegressionModel implements MLModel {
         for(int i=0;i<steps;i++) {
             System.out.println("Params: " + theta);
             double cost = calculateCost(learningDataSet);
-            System.out.println("Cost: " + cost);
-            System.out.println("Cost decrement: " + (prevCost - cost));
+            System.out.println("Cost: " + prevCost + " -> " + cost + "(" + (cost - prevCost) + ")");
             prevCost = cost;
             
             /**
              * theta - alpha / n * X' * (X * theta - y)
              */
             theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).multiply(alpha / learningDataSet.size()));
+            parameters = theta;
         }
 
-        parameters = theta;
     }
 
     private Standardizer[] createStandardizers(List<LearningData> learningDataSet) {
@@ -79,20 +78,20 @@ public class LinearRegressionModel implements MLModel {
 
     private static double[] getColumnValues(List<LearningData> learningDataSet, int i) {
         return learningDataSet.stream()
-                .mapToDouble(learningData -> learningData.input.values[i])
+                .mapToDouble(learningData -> learningData.input().get(i))
                 .toArray();
     }
 
     private static Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input.values, standardizers))).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input().values(), standardizers))).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
 
     private static Vector getOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
-                .mapToDouble(learningData -> learningData.output)
+                .mapToDouble(learningData -> learningData.output())
                 .toArray();
         return new Vector(values);
     }
@@ -100,13 +99,13 @@ public class LinearRegressionModel implements MLModel {
     @Override
     public double calculateOutput(Input input) {
         checkDimension(input);
-        return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * standardizers[i].standardize(input.values[i])).sum();
+        return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * standardizers[i].standardize(input.get(i))).sum();
     }
 
     @Override
     public double calculateCost(List<LearningData> learningDataSet) {
         int n = learningDataSet.size();
-        return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output - calculateOutput(learningData.input))).sum() / (2 * n);
+        return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output() - calculateOutput(learningData.input()))).sum() / (2 * n);
     }
 
     private void checkDimension(Input input) {

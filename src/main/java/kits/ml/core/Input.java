@@ -1,10 +1,6 @@
 package kits.ml.core;
 
-import java.util.Arrays;
-
-public class Input {
-
-    public final double[] values;
+public record Input(double[] values) {
 
     public Input(double ... values) {
         this.values = values;
@@ -13,9 +9,9 @@ public class Input {
     public int dimension() {
         return values.length;
     }
-
-    @Override
-    public String toString() {
-        return Arrays.toString(values);
+    
+    public double get(int i) {
+        return values[i];
     }
+
 }

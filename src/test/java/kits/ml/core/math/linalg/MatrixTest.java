@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MatrixTest {
@@ -24,7 +25,7 @@ public class MatrixTest {
     @Test
     public void fromColumnVectors() {
         
-        Matrix A = Matrix.fromColumnVectors(new Vector(1, 2, 3), new Vector(4, 5, 6));
+        Matrix A = MatrixFactory.fromColumnVectors(new Vector(1, 2, 3), new Vector(4, 5, 6));
         
         Matrix expected = new Matrix(
             new double[] {1, 4},
@@ -168,7 +169,7 @@ public class MatrixTest {
                 new double[] {0, 2},
                 new double[] {4, 6});
         
-        assertEquals(expected, A.multiply(2));
+        assertEquals(expected, A.scale(2));
     }
     
     @Test
@@ -218,7 +219,7 @@ public class MatrixTest {
                 new double[] {0, 1, 0},
                 new double[] {0, 0, 1});
         
-        assertEquals(expected, Matrix.createIdentity(3));
+        assertEquals(expected, MatrixFactory.createIdentity(3));
     }
     
     @Test
@@ -229,7 +230,7 @@ public class MatrixTest {
                 new double[] {0, 2, 0},
                 new double[] {0, 0, 3});
         
-        assertEquals(expected, Matrix.createDiagonal(1, 2, 3));
+        assertEquals(expected, MatrixFactory.createDiagonal(1, 2, 3));
     }
     
     @Test
@@ -254,6 +255,7 @@ public class MatrixTest {
     }
     
     @Test
+    @Disabled
     public void format() {
         Matrix matrix = new Matrix(
                 new double[] {2, 4, 15},
@@ -265,7 +267,7 @@ public class MatrixTest {
                   1,00 200,00   3,00
                   2,00   1,00   3,00""";
         
-        //Assertions.assertEquals(expected, "\n" + matrix.toString());
+        assertEquals(expected, "\n" + matrix.toString());
     }
     
 }

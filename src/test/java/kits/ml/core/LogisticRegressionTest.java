@@ -7,8 +7,11 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("static-method")
 public class LogisticRegressionTest {
 
+    private static final double TOLERANCE = 0.001;
+    
     @Test
     public void test1() {
 
@@ -17,11 +20,10 @@ public class LogisticRegressionTest {
         List<LearningData> learningDataSet = FileReader.readLearningDataSet("input/ExamData.txt");
 
         model.learn(learningDataSet);
-
-        final double DELTA = 0.001;
-        assertEquals(0.6241, model.calculateOutput(new Input(45, 85)), DELTA);
-        assertEquals(0.5295, model.calculateOutput(new Input(11, 20)), DELTA);
-        assertEquals(0.7382, model.calculateOutput(new Input(95, 97)), DELTA);
+        
+        assertEquals(0.6241, model.calculateOutput(new Input(45, 85)), TOLERANCE);
+        assertEquals(0.5295, model.calculateOutput(new Input(11, 20)), TOLERANCE);
+        assertEquals(0.7382, model.calculateOutput(new Input(95, 97)), TOLERANCE);
     }
 
     @Test
@@ -44,10 +46,10 @@ public class LogisticRegressionTest {
         int c = 0;
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j <= i; j++) {
-                values[c++] = Math.pow(learningData.input.values[0], i) * Math.pow(learningData.input.values[0], j);
+                values[c++] = Math.pow(learningData.input().get(0), i) * Math.pow(learningData.input().get(0), j);
             }
         }
-        return new LearningData(new Input(values), learningData.output);
+        return new LearningData(new Input(values), learningData.output());
     }
 
 }

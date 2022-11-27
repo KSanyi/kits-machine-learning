@@ -20,7 +20,7 @@ public class GramSchmidtCalculator {
             resultColumns.add(ortoNormalize(column, resultColumns));
         }
         
-        return Matrix.fromColumnVectors(resultColumns);
+        return MatrixFactory.fromColumnVectors(resultColumns);
     }
 
     private static Vector ortoNormalize(Vector vector, List<Vector> ortoNormalVectors) {
@@ -51,7 +51,7 @@ public class GramSchmidtCalculator {
             rColumns.add(qColumnAndRColumn.getRight());
         }
         
-        return new Decomposition.QR(Matrix.fromColumnVectors(qColumns), Matrix.fromColumnVectors(rColumns));
+        return new Decomposition.QR(MatrixFactory.fromColumnVectors(qColumns), MatrixFactory.fromColumnVectors(rColumns));
     }
     
     private static Pair<Vector, Vector> ortoNormalizeAndCreateRColumn(Vector vector, List<Vector> ortoNormalVectors) {

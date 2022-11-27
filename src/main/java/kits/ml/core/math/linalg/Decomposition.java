@@ -18,6 +18,10 @@ public class Decomposition {
             Matrix R) { // upper triangular matrix
     }
     
+    public static record Cholesky(
+            Matrix L) { // lower triangular matrix
+    }
+    
 }
 
 

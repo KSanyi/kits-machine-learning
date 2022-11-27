@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("static-method")
 public class VectorTest {
 
     @Test

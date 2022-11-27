@@ -68,9 +68,9 @@ public class NeuralNet {
     }
 
     private double calculateCost(LearningData learningData) {
-        Input input = learningData.input;
+        Input input = learningData.input();
         double[] calculatedOutput = calculateOutput(input);
-        double[] expectedOutput = calculateExpectedOutputArray(learningData.output, calculatedOutput.length);
+        double[] expectedOutput = calculateExpectedOutputArray(learningData.output(), calculatedOutput.length);
 
         return IntStream.range(0, calculatedOutput.length)
                 .mapToDouble(i -> -expectedOutput[i] * Math.log(calculatedOutput[i]) - (1 - expectedOutput[i]) * Math.log(1 - calculatedOutput[i])).sum();

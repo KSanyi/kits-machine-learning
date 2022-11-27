@@ -1,18 +1,17 @@
 package kits.ml.util;
 
+import java.util.function.Supplier;
+
 public class StopWatch {
 
-    public static void timed(Runnable runnable) {
-        
+    public static <T> T timed(Supplier<T> supplier, String name) {
         long start = System.currentTimeMillis();
-        try {
-            runnable.run();
-        } catch(Throwable th) {
-            long stop = System.currentTimeMillis();
-            System.out.println("Failed with error after " + format(start, stop) + " " + th);
-        }
-        long stop = System.currentTimeMillis();
-        System.out.println("Calculation took " + format(start, stop));
+        T result = supplier.get();
+        long end = System.currentTimeMillis();
+        
+        System.out.println(name + " took " + format(start, end));
+        
+        return result;
     }
     
     private static String format(long start, long end) {

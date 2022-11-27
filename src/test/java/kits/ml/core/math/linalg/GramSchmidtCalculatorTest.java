@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import kits.ml.core.math.linalg.Decomposition.QR;
 
+@SuppressWarnings("static-method")
 public class GramSchmidtCalculatorTest {
 
     private static final double EPSILON = 0.001;

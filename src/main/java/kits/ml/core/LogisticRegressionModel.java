@@ -41,7 +41,7 @@ public class LogisticRegressionModel {
         if (learningDataSet.isEmpty())
             throw new IllegalArgumentException("Can not learn from empty data set");
 
-        learningDataSet.stream().map(learningData -> learningData.input).forEach(this::checkDimension);
+        learningDataSet.stream().map(learningData -> learningData.input()).forEach(this::checkDimension);
 
         Matrix X = getInputMatrix(learningDataSet);
         Vector y = getOutputVector(learningDataSet);
@@ -88,19 +88,19 @@ public class LogisticRegressionModel {
     private static Matrix getInputMatrix(List<LearningData> learningDataSet) {
         
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input.values)).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input().values())).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
 
     private static Vector getOutputVector(List<LearningData> learningDataSet) {
-        double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output).toArray();
+        double[] values = learningDataSet.stream().mapToDouble(learningData -> learningData.output()).toArray();
         return new Vector(values);
     }
 
     public double calculateOutput(Input input) {
         checkDimension(input);
-        return MLMath.sigmoid(parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.values[i]).sum());
+        return MLMath.sigmoid(parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.get(i)).sum());
     }
 
     public int predict(Input input) {
@@ -118,8 +118,8 @@ public class LogisticRegressionModel {
     }
 
     private double calculateCost(LearningData learningData) {
-        Input input = learningData.input;
-        double output = learningData.output;
+        Input input = learningData.input();
+        double output = learningData.output();
         double calculatedOutput = calculateOutput(input);
 
         return -output * Math.log(calculatedOutput) - (1 - output) * Math.log(1 - calculatedOutput);

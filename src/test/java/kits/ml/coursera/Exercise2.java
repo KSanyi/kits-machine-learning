@@ -84,7 +84,7 @@ public class Exercise2 {
         System.out.println();
         
         System.out.println("Predictions: ");
-        learningDataSet.stream().forEach(data -> System.out.format("%.5f ", (double)model.predict(data.input)));
+        learningDataSet.stream().forEach(data -> System.out.format("%.5f ", (double)model.predict(data.input())));
         System.out.println();
     }
     

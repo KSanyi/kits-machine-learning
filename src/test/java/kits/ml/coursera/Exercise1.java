@@ -7,6 +7,7 @@ import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.LogisticRegressionModel;
 import kits.ml.core.math.linalg.Matrix;
+import kits.ml.core.math.linalg.MatrixFactory;
 import kits.ml.core.math.linalg.Vector;
 
 public class Exercise1 {
@@ -54,7 +55,7 @@ public class Exercise1 {
     
     private static void task1() {
         
-        Matrix identity5Matrix = Matrix.createIdentity(5);
+        Matrix identity5Matrix = MatrixFactory.createIdentity(5);
         
         System.out.println("Task 1");
         System.out.println(identity5Matrix);

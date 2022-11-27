@@ -39,8 +39,8 @@ public class MultiClassificationModel {
     }
 
     private static LearningData transformLearningDataForClass(LearningData learningData, int classIndex) {
-        int newOutput = learningData.output == classIndex ? 1 : 0;
-        return new LearningData(learningData.input, newOutput);
+        int newOutput = learningData.output() == classIndex ? 1 : 0;
+        return new LearningData(learningData.input(), newOutput);
     }
 
     public int predict(Input input) {

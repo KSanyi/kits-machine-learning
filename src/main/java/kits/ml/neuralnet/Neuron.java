@@ -23,7 +23,7 @@ public class Neuron {
     }
 
     public double calculateOutput(Input input) {
-        return MLMath.sigmoid(weights[0] + IntStream.range(0, inputDimension).mapToDouble(i -> weights[i + 1] * input.values[i]).sum());
+        return MLMath.sigmoid(weights[0] + IntStream.range(0, inputDimension).mapToDouble(i -> weights[i + 1] * input.get(i)).sum());
     }
 
     public DoubleStream weightsToRegularize() {

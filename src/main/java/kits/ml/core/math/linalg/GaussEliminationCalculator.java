@@ -80,7 +80,7 @@ public class GaussEliminationCalculator {
     
     public static Matrix calculateInverse(Matrix A) {
         
-        Matrix AB = runGaussElimination(A, Matrix.createIdentity(A.getNrColumns()));
+        Matrix AB = runGaussElimination(A, MatrixFactory.createIdentity(A.getNrColumns()));
         
         return AB.getSubMatrix(0, A.getNrRows(), A.getNrRows(), 2 * A.getNrRows());
     }
@@ -110,9 +110,9 @@ public class GaussEliminationCalculator {
         
         int n = A.getNrColumns();
         
-        Matrix L = Matrix.createZero(n); // we don't want row swaps to mess up the diagonal, so we add the diagonal in the end
+        Matrix L = MatrixFactory.createZero(n); // we don't want row swaps to mess up the diagonal, so we add the diagonal in the end
         Matrix U = new Matrix(A);
-        Matrix P = Matrix.createIdentity(n);
+        Matrix P = MatrixFactory.createIdentity(n);
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
             int pivotIndex = findPivotIndex(U, rowIndex);
@@ -130,7 +130,7 @@ public class GaussEliminationCalculator {
             }
         }
         
-        L = L.plus(Matrix.createIdentity(n));
+        L = L.plus(MatrixFactory.createIdentity(n));
         
         return new LU(L, U, P);
     }

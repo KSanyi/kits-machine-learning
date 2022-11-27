@@ -46,7 +46,7 @@ public class Exercise3 {
         model.learn(learningDataSet);
         System.out.println();
         
-        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)model.predict(learningData.input)));
+        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)model.predict(learningData.input())));
     }
     
     private static void task2() {
@@ -62,7 +62,7 @@ public class Exercise3 {
         };
         model.setModelParams(params);
         
-        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)model.predict(learningData.input)));
+        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)model.predict(learningData.input())));
     }
     
     private static void task3() {
@@ -84,6 +84,6 @@ public class Exercise3 {
         
         NeuralNet neuralNet = new NeuralNet(Arrays.asList(weights1, weights2), 0);
         
-        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)neuralNet.predict(learningData.input)));
+        learningDataSet.stream().forEach(learningData -> System.out.format("%.5f ", (double)neuralNet.predict(learningData.input())));
     }
 }
