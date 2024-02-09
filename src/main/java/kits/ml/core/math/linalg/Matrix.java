@@ -17,9 +17,9 @@ public class Matrix {
     private static final double EPSILON = 0.001;
     
     private final int nrRows;
-    private final int nrColumns;
+    private final int nrCols;
     
-    private final double[][] values;
+    final double[][] values;
 
     public Matrix(int nrRows, int nrColumns) {
         this(new double[nrRows][nrColumns]);
@@ -30,11 +30,11 @@ public class Matrix {
         if(values.length == 0) throw new IllegalArgumentException("No values provided");
         
         this.nrRows = values.length;
-        this.nrColumns = values[0].length;
+        this.nrCols = values[0].length;
         
-        if(Stream.of(values).anyMatch(row -> row.length != nrColumns)) throw new IllegalArgumentException("All rows must contain the same number of values");
+        if(Stream.of(values).anyMatch(row -> row.length != nrCols)) throw new IllegalArgumentException("All rows must contain the same number of values");
         
-        this.values = new double[nrRows][nrColumns];
+        this.values = new double[nrRows][nrCols];
         
         for (int rowIndex=0;rowIndex<values.length;rowIndex++) {
             this.values[rowIndex] = values[rowIndex].clone();            
@@ -50,16 +50,16 @@ public class Matrix {
     }
 
     public int getNrColumns() {
-        return nrColumns;
+        return nrCols;
     }
     
     public void set(int rowIndex, int columnIndex, double value) {
-        if(rowIndex >= nrRows || columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrColumns);
+        if(rowIndex >= nrRows || columnIndex >= nrCols) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrCols);
         values[rowIndex][columnIndex] = value;
     }
     
     public double get(int rowIndex, int columnIndex) {
-        if(rowIndex >= nrRows || columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrColumns);
+        if(rowIndex >= nrRows || columnIndex >= nrCols) throw new IllegalArgumentException("Illegal index. rowIndex must be < " + nrRows + " columnIndex must be < " + nrCols);
         return values[rowIndex][columnIndex];
     }
     
@@ -70,13 +70,13 @@ public class Matrix {
     }
     
     public void setRowVector(int rowIndex, Vector row) {
-        for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+        for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
             set(rowIndex, columnIndex, row.get(columnIndex));
         }
     }
     
     public Vector getColumnVector(int columnIndex) {
-        if(columnIndex >= nrColumns) throw new IllegalArgumentException("Illegal index. columnIndex must be < " + nrColumns);
+        if(columnIndex >= nrCols) throw new IllegalArgumentException("Illegal index. columnIndex must be < " + nrCols);
         double[] columnVectorValues = new double[nrRows];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
             columnVectorValues[rowIndex] = values[rowIndex][columnIndex];
@@ -94,11 +94,11 @@ public class Matrix {
     }
     
     private Matrix applyOperation(Matrix other, BinaryOperator<Double> operator) {
-        if(nrRows != other.nrRows || nrColumns != other.nrColumns) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
+        if(nrRows != other.nrRows || nrCols != other.nrCols) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
         
-        double[][] resultValues = new double[nrRows][nrColumns];
+        double[][] resultValues = new double[nrRows][nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
                 resultValues[rowIndex][columnIndex] = operator.apply(values[rowIndex][columnIndex], other.values[rowIndex][columnIndex]);
             }
         }
@@ -107,9 +107,9 @@ public class Matrix {
     }
     
     public Matrix scale(double lambda) {
-        double[][] resultValues = new double[nrRows][nrColumns];
+        double[][] resultValues = new double[nrRows][nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
                 resultValues[rowIndex][columnIndex] = lambda * values[rowIndex][columnIndex];
             }
         }
@@ -118,11 +118,11 @@ public class Matrix {
     
     // just for educational purposes, this is 3 times slower than the below one
     public Matrix multiplySlow(Matrix other) {
-        if(nrColumns != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
+        if(nrCols != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
         
-        double[][] resultValues = new double[nrRows][other.nrColumns];
+        double[][] resultValues = new double[nrRows][other.nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<other.nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<other.nrCols;columnIndex++) {
                 resultValues[rowIndex][columnIndex] = getRowVector(rowIndex).scalarProduct(other.getColumnVector(columnIndex));
             }
         }
@@ -130,14 +130,14 @@ public class Matrix {
     }
     
     public Matrix multiply(Matrix other) {
-        if(nrColumns != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
+        if(nrCols != other.nrRows) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
         
-        double[][] product = new double[nrRows][other.nrColumns];
+        double[][] product = new double[nrRows][other.nrCols];
         
         for (int i = 0; i < nrRows; i++) {
             for (int j = 0; j < other.nrRows; j++) {
                 double elemIJ = values[i][j];
-                for(int k = 0; k < other.nrColumns; k++) {
+                for(int k = 0; k < other.nrCols; k++) {
                     product[i][k] += elemIJ * other.values[j][k];
                 }
             }
@@ -147,7 +147,7 @@ public class Matrix {
     }
     
     public Vector multiply(Vector x) {
-        if(nrColumns != x.length()) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + x.length());
+        if(nrCols != x.length()) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + x.length());
         
         Vector result = new Vector(nrRows);
         for(int index=0;index<nrRows;index++) {
@@ -163,13 +163,13 @@ public class Matrix {
     
     public Matrix augment(Matrix other) {
         if(other.nrRows != nrRows) throw new IllegalArgumentException("Rownum of matrixes must match");
-        double[][] resultValues = new double[nrRows][nrColumns + other.nrColumns];
+        double[][] resultValues = new double[nrRows][nrCols + other.nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
                 resultValues[rowIndex][columnIndex] = values[rowIndex][columnIndex];
             }
-            for(int columnIndex=0;columnIndex<other.nrColumns;columnIndex++) {
-                resultValues[rowIndex][nrColumns+columnIndex] = other.values[rowIndex][columnIndex];
+            for(int columnIndex=0;columnIndex<other.nrCols;columnIndex++) {
+                resultValues[rowIndex][nrCols+columnIndex] = other.values[rowIndex][columnIndex];
             }
         }
         return new Matrix(resultValues);
@@ -187,11 +187,7 @@ public class Matrix {
     }
     
     public String printDimenstions() {
-        return nrRows + " X " + nrColumns;
-    }
-    
-    private double findMaxValue() {
-        return allValuesStream().max().getAsDouble();
+        return nrRows + " X " + nrCols;
     }
     
     public DoubleStream allValuesStream() {
@@ -212,9 +208,9 @@ public class Matrix {
     }
 
     public Matrix transpose() {
-        double[][] resultValues = new double[nrColumns][nrRows];
+        double[][] resultValues = new double[nrCols][nrRows];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
                 resultValues[columnIndex][rowIndex] = values[rowIndex][columnIndex];
             }
         }
@@ -222,9 +218,9 @@ public class Matrix {
     }
     
     public Matrix map(BiFunction<Integer, Integer, Double> mapper) {
-        double[][] resultValues = new double[nrRows][nrColumns];
+        double[][] resultValues = new double[nrRows][nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
                 resultValues[rowIndex][columnIndex] = mapper.apply(rowIndex, columnIndex);
             }
         }
@@ -254,16 +250,34 @@ public class Matrix {
     
     public String toString(int fractionDigits) {
 
-        int maxDigits = (int)Math.log10(findMaxValue()) + 2;
+        int[] rowIndexes = nrRows <= 6 ? IntStream.range(0,  nrRows).toArray() : new int[] {0, 1, 2, nrRows-3, nrRows-2, nrRows-1};
+        int[] colIndexes = nrCols <= 6 ? IntStream.range(0,  nrCols).toArray() : new int[] {0, 1, 2, nrCols-3, nrCols-2, nrCols-1};
+        
+        double max = Double.MIN_VALUE;
+        for(int rowIndex : rowIndexes) {
+            for(int colIndex : colIndexes) {
+                if(values[rowIndex][colIndex] > max) {
+                    max = values[rowIndex][colIndex];
+                }
+            }
+        }
+        
+        int maxDigits = (int)Math.log10(max) + 2;
         String formatPattern = "%" + (maxDigits + fractionDigits + 1) + "." + fractionDigits + "f";
         
         List<List<String>> stringValues = new ArrayList<>();
-        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+        for(int rowIndex : rowIndexes) {
             List<String> rowStringValues = new ArrayList<>();
-            for(int columnIndex=0;columnIndex<nrColumns;columnIndex++) {
-                rowStringValues.add(String.format(formatPattern, values[rowIndex][columnIndex]));
+            for(int colIndex : colIndexes) {
+                rowStringValues.add(String.format(formatPattern, get(rowIndex, colIndex)));
+                if(nrCols > 6 && colIndex == 2) {
+                    rowStringValues.add("...");
+                }
             }
             stringValues.add(rowStringValues);
+            if(nrRows > 6 && rowIndex == 2) {
+                stringValues.add(List.of("..."));
+            }
         }
         
         return stringValues.stream().map(row -> String.join(" ", row)).collect(joining("\n"));

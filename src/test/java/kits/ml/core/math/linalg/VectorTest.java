@@ -39,7 +39,7 @@ public class VectorTest {
     public void multiply() {
         Vector vector = new Vector(1, 2);
         
-        assertEquals(new Vector(2, 4), vector.multiply(2));
+        assertEquals(new Vector(2, 4), vector.scale(2));
     }
     
     @Test

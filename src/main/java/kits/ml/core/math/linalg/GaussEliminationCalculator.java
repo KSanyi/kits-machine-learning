@@ -8,7 +8,7 @@ public class GaussEliminationCalculator {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
         
-        if(A.getNrRows() != B.getNrRows()) throw new IllegalArgumentException("Rownum of A and B matrixes must match");
+        if(A.getNrRows() != B.getNrRows()) throw new IllegalArgumentException("Rownum of A and B matrices must match");
         
         int n = A.getNrColumns();
         
@@ -21,7 +21,7 @@ public class GaussEliminationCalculator {
             Vector pivotRow = AB.getRowVector(rowIndex);
             for(int columnIndex=rowIndex+1;columnIndex<n;columnIndex++) {
                 Vector row = AB.getRowVector(columnIndex);
-                row = row.minus(pivotRow.multiply(row.get(rowIndex) / pivot));
+                row = row.minus(pivotRow.scale(row.get(rowIndex) / pivot));
                 AB.setRowVector(columnIndex, row);
             }
         }
@@ -35,13 +35,13 @@ public class GaussEliminationCalculator {
                 pivotRow = AB.getRowVector(rowIndex);
             }
             if(pivot != 1) {
-                pivotRow = pivotRow.multiply(1 / pivot);
+                pivotRow = pivotRow.scale(1 / pivot);
                 AB.setRowVector(rowIndex, pivotRow);
                 pivot = 1;
             }
             for(int columnIndex=rowIndex-1;columnIndex>=0;columnIndex--) {
                 Vector row = AB.getRowVector(columnIndex);
-                row = row.minus(pivotRow.multiply(row.get(rowIndex) / pivot));
+                row = row.minus(pivotRow.scale(row.get(rowIndex) / pivot));
                 AB.setRowVector(columnIndex, row);
             }
         }
@@ -68,7 +68,6 @@ public class GaussEliminationCalculator {
         } else {
             return rowIndexForMax;
         }
-        
     }
 
     public static Vector solveEquation(Matrix A, Vector b) {
@@ -93,7 +92,6 @@ public class GaussEliminationCalculator {
             }
         }
         throw new IllegalArgumentException("No solution");
-        
     }
     
     /**
@@ -125,7 +123,7 @@ public class GaussEliminationCalculator {
                 Vector row = U.getRowVector(subRowIndex);
                 double quotient = row.get(rowIndex) / pivot;
                 L.set(subRowIndex, rowIndex, quotient);
-                row = row.minus(pivotRow.multiply(quotient));
+                row = row.minus(pivotRow.scale(quotient));
                 U.setRowVector(subRowIndex, row);
             }
         }

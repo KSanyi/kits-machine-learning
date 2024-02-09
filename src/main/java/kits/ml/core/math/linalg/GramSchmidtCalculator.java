@@ -26,12 +26,12 @@ public class GramSchmidtCalculator {
     private static Vector ortoNormalize(Vector vector, List<Vector> ortoNormalVectors) {
         Vector result = vector;
         for(Vector ortonormalVector : ortoNormalVectors) {
-            result = result.minus(ortonormalVector.multiply(ortonormalVector.scalarProduct(result)));
+            result = result.minus(ortonormalVector.scale(ortonormalVector.scalarProduct(result)));
         }
         
         double norm = result.norm();
         if(Math.abs(norm) > EPSILON) {
-            return result.multiply(1 / result.norm());
+            return result.scale(1 / result.norm());
         } else {
             throw new IllegalArgumentException("Columns of A are not linearly independent");            
         }
@@ -60,13 +60,13 @@ public class GramSchmidtCalculator {
         for(int i=0;i<ortoNormalVectors.size();i++) {
             Vector ortoNormalVector = ortoNormalVectors.get(i);
             double prod = ortoNormalVector.scalarProduct(qColumn);
-            qColumn = qColumn.minus(ortoNormalVector.multiply(prod));
+            qColumn = qColumn.minus(ortoNormalVector.scale(prod));
             rColumn.set(i, prod);
         }
         
         double norm = qColumn.norm();
         if(Math.abs(norm) > EPSILON) {
-            qColumn = qColumn.multiply(1 / qColumn.norm());
+            qColumn = qColumn.scale(1 / qColumn.norm());
             rColumn.set(ortoNormalVectors.size(), vector.scalarProduct(qColumn));
             return Pair.of(qColumn, rColumn);
         } else {

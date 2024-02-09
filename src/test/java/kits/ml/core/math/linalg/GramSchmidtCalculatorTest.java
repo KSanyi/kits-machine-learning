@@ -15,16 +15,16 @@ public class GramSchmidtCalculatorTest {
     @Test
     public void test() {
         
-        Matrix A = new Matrix(
-            new double[] {1, 2,  1},
-            new double[] {1, 1, -1},
-            new double[] {2, 1,  2}
+        Matrix A = new Matrix(new double[][] {
+            {1, 2,  1},
+            {1, 1, -1},
+            {2, 1,  2}}
         );
         
-        Matrix Q = new Matrix(
-            new double[] {0.408,  0.862,  0.302},
-            new double[] {0.408,  0.123, -0.905},
-            new double[] {0.816, -0.492,  0.302}
+        Matrix Q = new Matrix(new double[][] {
+            {0.408,  0.862,  0.302},
+            {0.408,  0.123, -0.905},
+            {0.816, -0.492,  0.302}}
         );
         
         assertEquals(Q, GramSchmidtCalculator.createOrtoNormalBaseMatrix(A));
@@ -45,25 +45,25 @@ public class GramSchmidtCalculatorTest {
     @Test
     public void testQR() {
         
-        Matrix A = new Matrix(
-            new double[] {1, 2,  1},
-            new double[] {1, 1, -1},
-            new double[] {2, 1,  2}
+        Matrix A = new Matrix(new double[][] {
+            {1, 2,  1},
+            {1, 1, -1},
+            {2, 1,  2}}
         );
         
         QR qr = GramSchmidtCalculator.createQRDecomposition(A);
         
         
-        Matrix Q = new Matrix(
-            new double[] {0.408,  0.862,  0.302},
-            new double[] {0.408,  0.123, -0.905},
-            new double[] {0.816, -0.492,  0.302}
+        Matrix Q = new Matrix(new double[][] {
+            {0.408,  0.862,  0.302},
+            {0.408,  0.123, -0.905},
+            {0.816, -0.492,  0.302}}
         );
         
-        Matrix R = new Matrix(
-            new double[] {2.449, 2.041,  1.633},
-            new double[] {0,     1.354, -0.246},
-            new double[] {0,     0,      1.809}
+        Matrix R = new Matrix(new double[][] {
+            {2.449, 2.041,  1.633},
+            {0,     1.354, -0.246},
+            {0,     0,      1.809}}
         );
         
         assertEquals(Q, qr.Q());
@@ -77,10 +77,10 @@ public class GramSchmidtCalculatorTest {
     @Test
     public void testDegenerate() {
         
-        Matrix A = new Matrix(
-            new double[] {1, 1, 0},
-            new double[] {1, 1, 1},
-            new double[] {2, 2, 2}
+        Matrix A = new Matrix(new double[][] {
+            {1, 1, 0},
+            {1, 1, 1},
+            {2, 2, 2}}
         );
         
         Assertions.assertThrows(IllegalArgumentException.class, () -> {

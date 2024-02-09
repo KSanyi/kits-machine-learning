@@ -69,7 +69,7 @@ public class Vector {
         return new Vector(resultValues);
     }
     
-    public Vector multiply(double lambda) {
+    public Vector scale(double lambda) {
         
         double[] resultValues = new double[length];
         for(int i=0;i<length;i++) {

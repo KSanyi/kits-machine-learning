@@ -15,9 +15,9 @@ public class MatrixTest {
         Matrix A = new Matrix(2, 2);
         A.set(1, 1, 3.0);
         
-        Matrix expected = new Matrix(
-            new double[] {0, 0},
-            new double[] {0, 3});
+        Matrix expected = new Matrix(new double[][] {
+                                        {0, 0},
+                                        {0, 3}});
         
         assertEquals(expected, A);
     }
@@ -27,10 +27,10 @@ public class MatrixTest {
         
         Matrix A = MatrixFactory.fromColumnVectors(new Vector(1, 2, 3), new Vector(4, 5, 6));
         
-        Matrix expected = new Matrix(
-            new double[] {1, 4},
-            new double[] {2, 5},
-            new double[] {3, 6});
+        Matrix expected = new Matrix(new double[][] {
+                                        {1, 4},
+                                        {2, 5},
+                                        {3, 6}});
         
         assertEquals(expected, A);
     }
@@ -38,13 +38,13 @@ public class MatrixTest {
     @Test
     public void equality() {
         
-        Matrix A = new Matrix(
-                new double[] {1, 2},
-                new double[] {3, 4});
+        Matrix A = new Matrix(new double[][] {
+                                    {1, 2},
+                                    {3, 4}});
         
-        Matrix B = new Matrix(
-                new double[] {1, 2},
-                new double[] {3, 4});
+        Matrix B = new Matrix(new double[][] {
+                                    {1, 2},
+                                    {3, 4}});
         
         assertTrue(A.equals(B));
         
@@ -58,14 +58,14 @@ public class MatrixTest {
     @Test
     public void transpose() {
         
-        Matrix A = new Matrix(
-            new double[] {1, 2, 3},
-            new double[] {4, 5, 6});
+        Matrix A = new Matrix(new double[][] {
+            {1, 2, 3},
+            {4, 5, 6}});
         
-        Matrix expectedTranspose = new Matrix(
-                new double[] {1, 4},
-                new double[] {2, 5},
-                new double[] {3, 6});
+        Matrix expectedTranspose = new Matrix(new double[][] {
+                {1, 4},
+                {2, 5},
+                {3, 6}});
         
         assertEquals(expectedTranspose, A.transpose());
     }
@@ -73,13 +73,13 @@ public class MatrixTest {
     @Test
     public void map() {
         
-        Matrix A = new Matrix(
-            new double[] {1, 2},
-            new double[] {3, 4});
+        Matrix A = new Matrix(new double[][] {
+            {1, 2},
+            {3, 4}});
         
-        Matrix expected = new Matrix(
-                new double[] {2, 4},
-                new double[] {6, 8});
+        Matrix expected = new Matrix(new double[][] {
+                {2, 4},
+                {6, 8}});
         
         assertEquals(expected, A.map((i,j) -> A.get(i, j) * 2.0));
     }
@@ -87,9 +87,9 @@ public class MatrixTest {
     @Test
     public void copy() {
         
-        Matrix A = new Matrix(
-                new double[] {1, 2},
-                new double[] {3, 4});
+        Matrix A = new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}});
         
         Matrix B = new Matrix(A);
         
@@ -107,17 +107,17 @@ public class MatrixTest {
     @Test
     public void plus() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}});
         
-        Matrix B = new Matrix(
-                new double[] {1, 1},
-                new double[] {1, 1});
+        Matrix B = new Matrix(new double[][] {
+                {1, 1},
+                {1, 1}});
         
-        Matrix expected = new Matrix(
-                new double[] {1, 2},
-                new double[] {3, 4});
+        Matrix expected = new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}});
             
         assertEquals(expected, A.plus(B));
     }
@@ -125,17 +125,17 @@ public class MatrixTest {
     @Test
     public void minus() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}});
         
-        Matrix B = new Matrix(
-                new double[] {1, 1},
-                new double[] {1, 1});
+        Matrix B = new Matrix(new double[][] {
+                {1, 1},
+                {1, 1}});
         
-        Matrix expected = new Matrix(
-                new double[] {-1, 0},
-                new double[] { 1, 2});
+        Matrix expected = new Matrix(new double[][] {
+                {-1, 0},
+                { 1, 2}});
             
         assertEquals(expected, A.minus(B));
     }
@@ -143,17 +143,17 @@ public class MatrixTest {
     @Test
     public void matrixMultiplication() {
         
-        Matrix A = new Matrix(
-                new double[] {1, 2},
-                new double[] {3, 4});
+        Matrix A = new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}});
         
-        Matrix B = new Matrix(
-                new double[] { 1, 2, 3},
-                new double[] { 4, 5, 6});
+        Matrix B = new Matrix(new double[][] {
+                { 1, 2, 3},
+                { 4, 5, 6}});
         
-        Matrix expected = new Matrix(
-                new double[] { 9, 12, 15},
-                new double[] {19, 26, 33});
+        Matrix expected = new Matrix(new double[][] {
+                { 9, 12, 15},
+                {19, 26, 33}});
         
         assertEquals(expected, A.multiply(B));
     }
@@ -161,13 +161,13 @@ public class MatrixTest {
     @Test
     public void scalarMultiplication() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}});
         
-        Matrix expected = new Matrix(
-                new double[] {0, 2},
-                new double[] {4, 6});
+        Matrix expected = new Matrix(new double[][] {
+                {0, 2},
+                {4, 6}});
         
         assertEquals(expected, A.scale(2));
     }
@@ -175,10 +175,10 @@ public class MatrixTest {
     @Test
     public void vectorMultiplication() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3},
-                new double[] {4, 5});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3},
+                {4, 5}});
         
         Vector x = new Vector(1, 2);
         
@@ -190,9 +190,9 @@ public class MatrixTest {
     @Test
     public void rowVector() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}});
         
         Vector expected = new Vector(2, 3);
         
@@ -202,9 +202,9 @@ public class MatrixTest {
     @Test
     public void columnVector() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}});
         
         Vector expected = new Vector(1, 3);
         
@@ -214,10 +214,10 @@ public class MatrixTest {
     @Test
     public void identity() {
         
-        Matrix expected = new Matrix(
-                new double[] {1, 0, 0},
-                new double[] {0, 1, 0},
-                new double[] {0, 0, 1});
+        Matrix expected = new Matrix(new double[][] {
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}});
         
         assertEquals(expected, MatrixFactory.createIdentity(3));
     }
@@ -225,10 +225,10 @@ public class MatrixTest {
     @Test
     public void diagonal() {
         
-        Matrix expected = new Matrix(
-                new double[] {1, 0, 0},
-                new double[] {0, 2, 0},
-                new double[] {0, 0, 3});
+        Matrix expected = new Matrix(new double[][] {
+                {1, 0, 0},
+                {0, 2, 0},
+                {0, 0, 3}});
         
         assertEquals(expected, MatrixFactory.createDiagonal(1, 2, 3));
     }
@@ -236,20 +236,20 @@ public class MatrixTest {
     @Test
     public void augment() {
         
-        Matrix A = new Matrix(
-                new double[] {0, 1},
-                new double[] {2, 3},
-                new double[] {4, 5});
+        Matrix A = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3},
+                {4, 5}});
         
-        Matrix B = new Matrix(
-                new double[] {5, 9},
-                new double[] {6, 8},
-                new double[] {7, 7});
+        Matrix B = new Matrix(new double[][] {
+                {5, 9},
+                {6, 8},
+                {7, 7}});
         
-        Matrix expected = new Matrix(
-                new double[] {0, 1, 5, 9},
-                new double[] {2, 3, 6, 8},
-                new double[] {4, 5, 7, 7});
+        Matrix expected = new Matrix(new double[][] {
+                {0, 1, 5, 9},
+                {2, 3, 6, 8},
+                {4, 5, 7, 7}});
         
         assertEquals(expected, A.augment(B));
     }
@@ -257,10 +257,10 @@ public class MatrixTest {
     @Test
     @Disabled
     public void format() {
-        Matrix matrix = new Matrix(
-                new double[] {2, 4, 15},
-                new double[] {1, 200, 3},
-                new double[] {2, 1, 3});
+        Matrix matrix = new Matrix(new double[][] {
+                {2, 4, 15},
+                {1, 200, 3},
+                {2, 1, 3}});
         
         String expected = """
                   2,00   4,00  15,00

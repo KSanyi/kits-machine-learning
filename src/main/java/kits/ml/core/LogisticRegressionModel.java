@@ -55,9 +55,9 @@ public class LogisticRegressionModel {
             /**
              * theta - alpha / n * X' * (sigmoid(X * theta) - y)
              */
-            Vector gradient = X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).multiply(1d / learningDataSet.size());
+            Vector gradient = X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).scale(1d / learningDataSet.size());
             double alpha = findAlpha(learningDataSet, gradient, theta);
-            theta = theta.minus(gradient.multiply(alpha));
+            theta = theta.minus(gradient.scale(alpha));
         }
 
         parameters = theta;
@@ -134,7 +134,7 @@ public class LogisticRegressionModel {
         thetaForRegularization.set(0, 0);
         int n = learningDataSet.size();
 
-        return X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).multiply(1d / n).plus(thetaForRegularization.multiply(lambda / n));
+        return X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).scale(1d / n).plus(thetaForRegularization.scale(lambda / n));
     }
 
     private void checkDimension(Input input) {

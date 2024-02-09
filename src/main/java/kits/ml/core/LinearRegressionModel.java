@@ -64,7 +64,7 @@ public class LinearRegressionModel implements MLModel {
             /**
              * theta - alpha / n * X' * (X * theta - y)
              */
-            theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).multiply(alpha / learningDataSet.size()));
+            theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).scale(alpha / learningDataSet.size()));
             parameters = theta;
         }
 
