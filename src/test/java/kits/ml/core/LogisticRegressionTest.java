@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("static-method")
 public class LogisticRegressionTest {
 
     private static final double TOLERANCE = 0.001;

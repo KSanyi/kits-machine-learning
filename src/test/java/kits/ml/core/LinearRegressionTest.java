@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("static-method")
 public class LinearRegressionTest {
 
     private static final double TOLERANCE = 0.01;

@@ -4,6 +4,8 @@ import kits.ml.core.math.linalg.Decomposition.LU;
 
 public class GaussEliminationCalculator {
 
+    private static final double EPSILON = 1e-8; 
+    
     public static Matrix runGaussElimination(Matrix A, Matrix B) {
         
         if(A.getNrRows() != A.getNrColumns()) throw new IllegalArgumentException("Not a square matrix");
@@ -16,6 +18,7 @@ public class GaussEliminationCalculator {
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
             int pivotIndex = findPivotIndex(AB, rowIndex);
+            if(pivotIndex == -1) throw new IllegalArgumentException("No solution");
             AB.swapRows(rowIndex, pivotIndex);
             double pivot = AB.get(rowIndex, rowIndex);
             Vector pivotRow = AB.getRowVector(rowIndex);
@@ -49,27 +52,41 @@ public class GaussEliminationCalculator {
         return AB;
     }
     
+    private static int findPivotIndex(Matrix A, int rowIndex) {
+        return findPivotIndex(A, rowIndex, rowIndex);
+    }
+    
     /**
      *  Scaled pivoting: in this approach, the algorithm selects the largest entry as the pivot element to
      *  prevent propagations of rounding errors.
      */
-    private static int findPivotIndex(Matrix Ab, int rowIndex) {
-        double max = Ab.get(rowIndex, rowIndex);
+    private static int findPivotIndex(Matrix A, int rowIndex, int columnIndex) {
+        double max = A.get(rowIndex, columnIndex);
         int rowIndexForMax = rowIndex;
-        for(int i=rowIndex+1;i<Ab.getNrRows();i++) {
-            double candidate = Math.abs(Ab.get(i, rowIndex));
+        for(int i=rowIndex+1;i<A.getNrRows();i++) {
+            double candidate = Math.abs(A.get(i, columnIndex));
             if(candidate > max) {
                 max = candidate; 
                 rowIndexForMax = i;
             }
         }
         if(max == 0) {
-            throw new IllegalArgumentException("No solution");    
+            return -1;    
         } else {
             return rowIndexForMax;
         }
     }
-
+    
+    private static void swapRowsUp(Matrix Ab, int rowIndex) {
+        for(int i=rowIndex-1;i>=0;i--) {
+            if(Ab.get(i, rowIndex) != 0) {
+                Ab.swapRows(i, rowIndex);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("No solution");
+    }
+    
     public static Vector solveEquation(Matrix A, Vector b) {
         
         Matrix AB = runGaussElimination(A, b.asMatrix());
@@ -82,16 +99,6 @@ public class GaussEliminationCalculator {
         Matrix AB = runGaussElimination(A, MatrixFactory.createIdentity(A.getNrColumns()));
         
         return AB.getSubMatrix(0, A.getNrRows(), A.getNrRows(), 2 * A.getNrRows());
-    }
-    
-    private static void swapRowsUp(Matrix Ab, int rowIndex) {
-        for(int i=rowIndex-1;i>=0;i--) {
-            if(Ab.get(i, rowIndex) != 0) {
-                Ab.swapRows(i, rowIndex);
-                return;
-            }
-        }
-        throw new IllegalArgumentException("No solution");
     }
     
     /**
@@ -114,6 +121,7 @@ public class GaussEliminationCalculator {
         
         for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
             int pivotIndex = findPivotIndex(U, rowIndex);
+            if(pivotIndex == -1) throw new IllegalArgumentException("No solution");
             U.swapRows(rowIndex, pivotIndex);
             P.swapRows(rowIndex, pivotIndex);
             L.swapRows(rowIndex, pivotIndex);
@@ -131,6 +139,50 @@ public class GaussEliminationCalculator {
         L = L.plus(MatrixFactory.createIdentity(n));
         
         return new LU(L, U, P);
+    }
+
+    public static Matrix createRowEchelonForm(Matrix A) {
+        
+        int n = A.getNrRows();
+        
+        int colIndex = 0;
+        for(int rowIndex=0;rowIndex<n-1;rowIndex++) {
+            int pivotIndex = findPivotIndex(A, colIndex);
+            while(pivotIndex == -1 && colIndex < A.getNrColumns()-1) {
+                colIndex++;
+                pivotIndex = findPivotIndex(A, rowIndex, colIndex);
+            }
+            A.swapRows(rowIndex, pivotIndex);
+            double pivot = A.get(rowIndex, colIndex);
+            Vector pivotRow = A.getRowVector(rowIndex);
+            for(int rI=rowIndex+1;rI<n;rI++) {
+                Vector row = A.getRowVector(rI);
+                row = row.minus(pivotRow.scale(row.get(colIndex) / pivot));
+                A.setRowVector(rI, row);
+            }
+            colIndex++;
+        }
+        
+        return A;
+    }
+    
+    public static int calculateRank(Matrix A) {
+        Matrix rowEchelonMatrix = createRowEchelonForm(A);
+        
+        int rankCounter = 0;
+        for(int i=0;i<rowEchelonMatrix.getNrRows();i++) {
+            Vector row = rowEchelonMatrix.getRowVector(i);
+            if(!isVectorZero(row)) rankCounter++;
+        }
+        
+        return rankCounter;
+    }
+    
+    private static boolean isVectorZero(Vector vector) {
+        for(int i=0;i<vector.length();i++) {
+            if(vector.get(i) > EPSILON) return false;
+        }
+        return true;
     }
     
 }

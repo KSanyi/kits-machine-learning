@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import kits.ml.core.math.linalg.Decomposition.LU;
 
-@SuppressWarnings("static-method")
 public class GaussEliminationCalculatorTest {
 
     @Test
@@ -240,6 +239,36 @@ public class GaussEliminationCalculatorTest {
         Matrix P = luDecomposition.P();
         
         assertEquals(P.multiply(A), L.multiply(U));
+    }
+    
+    @Test
+    public void testEchelon1() {
+        
+        Matrix A = new Matrix(new double[][] {
+            {2, 0, 4, 6},
+            {1, 0, 5, 9},
+            {2, 0, 1, 3}}
+        );
+        
+        Matrix rowEchelonMatrix = GaussEliminationCalculator.createRowEchelonForm(A);
+        
+        Matrix expected = new Matrix(new double[][] {
+            {2, 4, 4, 6},
+            {1, 5, 5, 9},
+            {2, 1, 1, 3}}
+        );
+        
+        assertEquals(expected, rowEchelonMatrix);
+    }
+    
+    @Test
+    public void testRank() {
+        
+        Random random = new Random();
+        
+        Matrix matrix = RandomUtils.generateRandomMatrix(100, 200, () -> random.nextDouble(100));
+        
+        assertEquals(100, GaussEliminationCalculator.calculateRank(matrix));
     }
     
 }
