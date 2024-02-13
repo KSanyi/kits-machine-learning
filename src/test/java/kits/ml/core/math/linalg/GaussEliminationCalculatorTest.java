@@ -242,7 +242,7 @@ public class GaussEliminationCalculatorTest {
     }
     
     @Test
-    public void testEchelon1() {
+    public void testRowEchelonForm() {
         
         Matrix A = new Matrix(new double[][] {
             {2, 0, 4, 6},
@@ -253,9 +253,9 @@ public class GaussEliminationCalculatorTest {
         Matrix rowEchelonMatrix = GaussEliminationCalculator.createRowEchelonForm(A);
         
         Matrix expected = new Matrix(new double[][] {
-            {2, 4, 4, 6},
-            {1, 5, 5, 9},
-            {2, 1, 1, 3}}
+            {2, 0, 4, 6},
+            {0, 0, 3, 6},
+            {0, 0, 0, 3}}
         );
         
         assertEquals(expected, rowEchelonMatrix);
