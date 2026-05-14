@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import kits.ml.core.math.linalg.Vector;
+
 public class FileReader {
 
     private final static String DELIMETER = ",";
@@ -28,7 +30,7 @@ public class FileReader {
         double[] values = Stream.of(parts).mapToDouble(Double::parseDouble).toArray();
         double[] inputValues = Arrays.copyOfRange(values, 0, values.length - 1);
         double output = values[values.length - 1];
-        return new LearningData(new Input(inputValues), output);
+        return new LearningData(new Vector(inputValues), output);
     }
 
 }

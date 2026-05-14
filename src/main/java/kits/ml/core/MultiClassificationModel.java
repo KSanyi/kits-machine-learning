@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import kits.ml.core.math.linalg.Vector;
+
 public class MultiClassificationModel {
 
     private final List<LogisticRegressionModel> models = new ArrayList<>();
@@ -43,7 +45,7 @@ public class MultiClassificationModel {
         return new LearningData(learningData.input(), newOutput);
     }
 
-    public int predict(Input input) {
+    public int predict(Vector input) {
         double maxValue = 0;
         int indexForMaxValue = -1;
         for (int classIndex = 1; classIndex <= nrOfClasses; classIndex++) {

@@ -3,7 +3,6 @@ package kits.ml.coursera;
 import java.util.ArrayList;
 import java.util.List;
 
-import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.LogisticRegressionModel;
 import kits.ml.core.math.MLMath;
@@ -68,7 +67,7 @@ public class Exercise2 {
         List<LearningData> learningDataSet = new ArrayList<>();
         
         for (int i = 0; i < 20; i++) {
-            Input learningInput = new Input(X[i][1], X[i][2]);
+            Vector learningInput = new Vector(X[i][1], X[i][2]);
             LearningData learningData = new LearningData(learningInput, y[i]);
             learningDataSet.add(learningData);
         }
@@ -93,7 +92,7 @@ public class Exercise2 {
         List<LearningData> learningDataSet = new ArrayList<>();
         
         for (int i = 0; i < 20; i++) {
-            Input learningInput = new Input(X[i][1], X[i][2]);
+            Vector learningInput = new Vector(X[i][1], X[i][2]);
             LearningData learningData = new LearningData(learningInput, y[i]);
             learningDataSet.add(learningData);
         }

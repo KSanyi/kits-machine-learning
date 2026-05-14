@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import kits.ml.core.math.linalg.Vector;
+
 public class LogisticRegressionTest {
 
     private static final double TOLERANCE = 0.001;
@@ -20,9 +22,9 @@ public class LogisticRegressionTest {
 
         model.learn(learningDataSet);
         
-        assertEquals(0.6241, model.calculateOutput(new Input(45, 85)), TOLERANCE);
-        assertEquals(0.5295, model.calculateOutput(new Input(11, 20)), TOLERANCE);
-        assertEquals(0.7382, model.calculateOutput(new Input(95, 97)), TOLERANCE);
+        assertEquals(0.6241, model.calculateOutput(new Vector(45, 85)), TOLERANCE);
+        assertEquals(0.5295, model.calculateOutput(new Vector(11, 20)), TOLERANCE);
+        assertEquals(0.7382, model.calculateOutput(new Vector(95, 97)), TOLERANCE);
     }
 
     @Test
@@ -48,7 +50,7 @@ public class LogisticRegressionTest {
                 values[c++] = Math.pow(learningData.input().get(0), i) * Math.pow(learningData.input().get(0), j);
             }
         }
-        return new LearningData(new Input(values), learningData.output());
+        return new LearningData(new Vector(values), learningData.output());
     }
 
 }

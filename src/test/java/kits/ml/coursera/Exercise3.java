@@ -3,30 +3,30 @@ package kits.ml.coursera;
 import java.util.Arrays;
 import java.util.List;
 
-import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.MultiClassificationModel;
+import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.NeuralNet;
 
 public class Exercise3 {
 
     static final List<LearningData> learningDataSet = Arrays.asList(
-            new LearningData(new Input(-1, -1), 1),
-            new LearningData(new Input(-1, -2), 1),
-            new LearningData(new Input(-2, -1), 1),
-            new LearningData(new Input(-2, -2), 1),
-            new LearningData(new Input( 1,  1), 2),
-            new LearningData(new Input( 1,  2), 2),
-            new LearningData(new Input( 2,  1), 2),
-            new LearningData(new Input( 2,  2), 2),
-            new LearningData(new Input(-1,  1), 3),
-            new LearningData(new Input(-1,  2), 3),
-            new LearningData(new Input(-2,  1), 3),
-            new LearningData(new Input(-2,  2), 3),
-            new LearningData(new Input( 1, -1), 4),
-            new LearningData(new Input( 1, -2), 4),
-            new LearningData(new Input(-2, -1), 4),
-            new LearningData(new Input(-2, -2), 4));
+            new LearningData(new Vector(-1, -1), 1),
+            new LearningData(new Vector(-1, -2), 1),
+            new LearningData(new Vector(-2, -1), 1),
+            new LearningData(new Vector(-2, -2), 1),
+            new LearningData(new Vector( 1,  1), 2),
+            new LearningData(new Vector( 1,  2), 2),
+            new LearningData(new Vector( 2,  1), 2),
+            new LearningData(new Vector( 2,  2), 2),
+            new LearningData(new Vector(-1,  1), 3),
+            new LearningData(new Vector(-1,  2), 3),
+            new LearningData(new Vector(-2,  1), 3),
+            new LearningData(new Vector(-2,  2), 3),
+            new LearningData(new Vector( 1, -1), 4),
+            new LearningData(new Vector( 1, -2), 4),
+            new LearningData(new Vector(-2, -1), 4),
+            new LearningData(new Vector(-2, -2), 4));
         
          
     public static void main(String[] args) {

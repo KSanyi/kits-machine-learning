@@ -149,7 +149,7 @@ public class Matrix {
     public Vector multiply(Vector x) {
         if(nrCols != x.length()) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + x.length());
         
-        Vector result = new Vector(nrRows);
+        Vector result = Vector.createZero(nrRows);
         for(int index=0;index<nrRows;index++) {
             result.set(index, getRowVector(index).scalarProduct(x));
         }
@@ -218,13 +218,17 @@ public class Matrix {
     }
     
     public Matrix map(BiFunction<Integer, Integer, Double> mapper) {
-        double[][] resultValues = new double[nrRows][nrCols];
+        Matrix other = new Matrix(this);
+        other.apply(mapper);
+        return other;
+    }
+    
+    public void apply(BiFunction<Integer, Integer, Double> mapper) {
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
             for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
-                resultValues[rowIndex][columnIndex] = mapper.apply(rowIndex, columnIndex);
+                values[rowIndex][columnIndex] = mapper.apply(rowIndex, columnIndex);
             }
         }
-        return new Matrix(resultValues);
     }
     
     @Override

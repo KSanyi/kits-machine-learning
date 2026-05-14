@@ -24,8 +24,8 @@ public class SimpleLinearRegressionModel implements MLModel {
     public void learn(List<LearningData> learningDataSet) {
         learningDataSet.stream().map(learningData -> learningData.input()).forEach(this::checkDimension);
 
-        Matrix X = getInputMatrix(learningDataSet);
-        Vector y = getOutputVector(learningDataSet);
+        Matrix X = createInputMatrix(learningDataSet);
+        Vector y = cretaeOutputVector(learningDataSet);
 
         /**
          * inv(X' * X) * X' * y
@@ -38,14 +38,14 @@ public class SimpleLinearRegressionModel implements MLModel {
         return GaussEliminationCalculator.calculateInverse(A);
     }
 
-    private static Matrix getInputMatrix(List<LearningData> learningDataSet) {
+    private static Matrix createInputMatrix(List<LearningData> learningDataSet) {
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input().values())).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), learningData.input().stream()).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
 
-    private static Vector getOutputVector(List<LearningData> learningDataSet) {
+    private static Vector cretaeOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.output())
                 .toArray();
@@ -53,7 +53,7 @@ public class SimpleLinearRegressionModel implements MLModel {
     }
 
     @Override
-    public double calculateOutput(Input input) {
+    public double calculateOutput(Vector input) {
         checkDimension(input);
         return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.get(i)).sum();
     }
@@ -66,8 +66,8 @@ public class SimpleLinearRegressionModel implements MLModel {
                 .sum() / (2 * n);
     }
 
-    private void checkDimension(Input input) {
-        if (input.dimension() != inputDimension)
+    private void checkDimension(Vector input) {
+        if (input.length() != inputDimension)
             throw new IllegalArgumentException("Input dimension must be " + inputDimension);
     }
 

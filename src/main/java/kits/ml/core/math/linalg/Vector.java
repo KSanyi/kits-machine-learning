@@ -15,10 +15,6 @@ public class Vector {
     
     private final double[] values;
 
-    public Vector(int length) {
-        this(new double[length]);
-    }
-    
     public Vector(double ... values) {
         this.values = values.clone();
         length = values.length;
@@ -34,7 +30,11 @@ public class Vector {
     }
     
     public double norm() {
-        return Math.sqrt(this.scalarProduct(this));
+        return Math.sqrt(normSquared());
+    }
+    
+    public double normSquared() {
+        return this.scalarProduct(this);
     }
 
     public void set(int index, double value) {
@@ -123,13 +123,19 @@ public class Vector {
         return new Vector(resultValues);
     }
     
+    public void apply(Function<Integer, Double> mapper) {
+        for(int i=0;i<length;i++) {
+            values[i] = mapper.apply(i);
+        }
+    }
+    
     @Override
     public String toString() {
         return toString(2);
     }
     public String toString(int fractionDigits) {
         String formatPattern = "%." + fractionDigits + "f";
-        return DoubleStream.of(values).mapToObj(v -> String.format(formatPattern, v)).collect(joining(" ", "[", "]"));
+        return stream().mapToObj(v -> String.format(formatPattern, v)).collect(joining(" ", "[", "]"));
     }
 
     @Override
@@ -149,5 +155,21 @@ public class Vector {
         Vector other = (Vector) obj;
         return IntStream.range(0, length).allMatch(index -> Math.abs(get(index) - other.get(index)) < EPSILON);
     }
+
+    public DoubleStream stream() {
+        return DoubleStream.of(values);
+    }
+    
+    public static Vector createZero(int length) {
+        double[] data = new double[length];
+        return new Vector(data);
+    }
+    
+    public static Vector createOneHot(int length, int value) {
+        Vector oneHot = Vector.createZero(length);
+        oneHot.set(value, 1);
+        return oneHot;
+    }
+
 
 }

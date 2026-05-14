@@ -266,9 +266,10 @@ public class GaussEliminationCalculatorTest {
         
         Random random = new Random();
         
-        Matrix matrix = RandomUtils.generateRandomMatrix(100, 200, () -> random.nextDouble(100));
+        Matrix matrix = RandomUtils.generateRandomMatrix(200, 100, () -> random.nextDouble(10));
+        Matrix matrix2 = matrix.multiply(matrix.transpose());
         
-        assertEquals(100, GaussEliminationCalculator.calculateRank(matrix));
+        assertEquals(100, GaussEliminationCalculator.calculateRank(matrix2));
     }
     
 }

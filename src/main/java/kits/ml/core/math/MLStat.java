@@ -3,6 +3,8 @@ package kits.ml.core.math;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import kits.ml.core.math.linalg.Vector;
+
 public class MLStat {
 
     public static double average(double[] values) {
@@ -16,11 +18,11 @@ public class MLStat {
         return MLMath.sqrt(DoubleStream.of(values).map(value -> MLMath.square(value - average)).average().getAsDouble());
     }
 
-    public static double[] standardize(double[] values, Standardizer[] standardizers) {
-        if (values.length != standardizers.length)
+    public static double[] standardize(Vector values, Standardizer[] standardizers) {
+        if (values.length() != standardizers.length)
             throw new IllegalArgumentException();
 
-        return IntStream.range(0, values.length).mapToDouble(i -> standardizers[i].standardize(values[i])).toArray();
+        return IntStream.range(0, values.length()).mapToDouble(i -> standardizers[i].standardize(values.get(i))).toArray();
     }
 
     public static record Standardizer(double average, double stdev) {

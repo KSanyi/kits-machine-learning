@@ -3,8 +3,8 @@ package kits.ml.neuralnet;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import kits.ml.core.Input;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Vector;
 
 public class Neuron {
 
@@ -22,7 +22,7 @@ public class Neuron {
         inputDimension = weights.length - 1;
     }
 
-    public double calculateOutput(Input input) {
+    public double calculateOutput(Vector input) {
         return MLMath.sigmoid(weights[0] + IntStream.range(0, inputDimension).mapToDouble(i -> weights[i + 1] * input.get(i)).sum());
     }
 

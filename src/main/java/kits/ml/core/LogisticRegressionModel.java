@@ -88,7 +88,7 @@ public class LogisticRegressionModel {
     private static Matrix getInputMatrix(List<LearningData> learningDataSet) {
         
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(learningData.input().values())).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), learningData.input().stream()).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
@@ -98,12 +98,12 @@ public class LogisticRegressionModel {
         return new Vector(values);
     }
 
-    public double calculateOutput(Input input) {
+    public double calculateOutput(Vector input) {
         checkDimension(input);
         return MLMath.sigmoid(parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * input.get(i)).sum());
     }
 
-    public int predict(Input input) {
+    public int predict(Vector input) {
         double output = calculateOutput(input);
         return output > 0.5 ? 1 : 0;
     }
@@ -118,7 +118,7 @@ public class LogisticRegressionModel {
     }
 
     private double calculateCost(LearningData learningData) {
-        Input input = learningData.input();
+        Vector input = learningData.input();
         double output = learningData.output();
         double calculatedOutput = calculateOutput(input);
 
@@ -137,8 +137,8 @@ public class LogisticRegressionModel {
         return X.transpose().multiply(MLMath.sigmoid(X.multiply(theta)).minus(y)).scale(1d / n).plus(thetaForRegularization.scale(lambda / n));
     }
 
-    private void checkDimension(Input input) {
-        if (input.dimension() != inputDimension) {
+    private void checkDimension(Vector input) {
+        if (input.length() != inputDimension) {
             throw new IllegalArgumentException("Input dimension must be " + inputDimension);
         }
     }

@@ -1,8 +1,5 @@
 package kits.ml.core.math;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import kits.ml.core.math.linalg.Matrix;
 import kits.ml.core.math.linalg.Vector;
 
@@ -36,17 +33,8 @@ public class MLMath {
         return X.map((i, j) -> MLMath.sigmoidGradient(X.get(i, j)));
     }
     
-    public static double[] generateArithmeticSeries(double start, double diff, double end) {
-        
-        List<Double> values = new ArrayList<>();
-        double value = start;
-        while(value < end) {
-            values.add(value);
-            value += diff;
-        }
-        values.add(end);
-        
-        return values.stream().mapToDouble(d -> d).toArray();
+    public static Vector sigmoidGradient(Vector x) {
+        return x.map((i -> MLMath.sigmoidGradient(x.get(i))));
     }
-
+    
 }

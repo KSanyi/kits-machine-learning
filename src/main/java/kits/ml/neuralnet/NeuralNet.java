@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Vector;
 
 public class NeuralNet {
 
@@ -38,7 +38,7 @@ public class NeuralNet {
         this.lambda = lambda;
     }
 
-    public int predict(Input input) {
+    public int predict(Vector input) {
         return findIndexForMaxOutput(calculateOutput(input)) + 1;
     }
 
@@ -68,7 +68,7 @@ public class NeuralNet {
     }
 
     private double calculateCost(LearningData learningData) {
-        Input input = learningData.input();
+        Vector input = learningData.input();
         double[] calculatedOutput = calculateOutput(input);
         double[] expectedOutput = calculateExpectedOutputArray(learningData.output(), calculatedOutput.length);
 
@@ -83,12 +83,12 @@ public class NeuralNet {
         return expectedOutput;
     }
 
-    public double[] calculateOutput(Input input) {
-        Input inp = input;
+    public double[] calculateOutput(Vector input) {
+        Vector inp = input;
         double[] output = null;
         for (Layer hiddenLayer : hiddenLayers) {
             output = hiddenLayer.calculateOutput(inp);
-            inp = new Input(output);
+            inp = new Vector(output);
         }
 
         return output;
@@ -106,7 +106,7 @@ public class NeuralNet {
             neurons = IntStream.range(0, weights.length).mapToObj(i -> new Neuron(weights[i])).collect(Collectors.toList());
         }
 
-        double[] calculateOutput(Input input) {
+        double[] calculateOutput(Vector input) {
             return neurons.stream().mapToDouble(neuron -> neuron.calculateOutput(input)).toArray();
         }
 

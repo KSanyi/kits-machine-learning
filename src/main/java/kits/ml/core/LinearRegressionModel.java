@@ -1,6 +1,7 @@
 package kits.ml.core;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -9,31 +10,27 @@ import kits.ml.core.math.MLStat;
 import kits.ml.core.math.MLStat.Standardizer;
 import kits.ml.core.math.linalg.Matrix;
 import kits.ml.core.math.linalg.Vector;
+import kits.ml.core.math.optimization.GradientDescentOptimizer;
+import kits.ml.core.math.optimization.GradientOptimizer;
 
 public class LinearRegressionModel implements MLModel {
-
-    private final int steps;
-    private final double alpha;
 
     private final int inputDimension;
 
     private Vector parameters;
 
     private Standardizer[] standardizers;
+    
+    private final GradientOptimizer optimizer;
 
     public LinearRegressionModel(int inputDimension) {
-        this(inputDimension, 0.01);
+        this(inputDimension, new GradientDescentOptimizer(100, 0.01, 0.001));
     }
 
-    public LinearRegressionModel(int inputDimension, double alpha) {
-        this(inputDimension, alpha, 1000);
-    }
-
-    public LinearRegressionModel(int inputDimension, double alpha, int steps) {
+    public LinearRegressionModel(int inputDimension, GradientOptimizer optimizer) {
         this.inputDimension = inputDimension;
-        this.alpha = alpha;
-        this.steps = steps;
-        parameters = new Vector(inputDimension + 1);
+        this.optimizer = optimizer;
+        parameters = Vector.createZero(inputDimension + 1);
     }
 
     public void setParameters(double ... parameters) {
@@ -50,23 +47,27 @@ public class LinearRegressionModel implements MLModel {
 
         standardizers = createStandardizers(learningDataSet);
 
-        Matrix X = getStandardizedInputMatrix(learningDataSet, standardizers);
-        Vector y = getOutputVector(learningDataSet);
+        Matrix X = createStandardizedInputMatrix(learningDataSet, standardizers);
+        Vector y = createOutputVector(learningDataSet);
         Vector theta = parameters;
+        
+        Function<Vector, Double> costFunction = v -> calculateCost(learningDataSet, v);
+        // X' * (X * theta - y)
+        parameters = optimizer.optimize(theta, costFunction, v -> X.transpose().multiply(X.multiply(v).minus(y)));
 
-        double prevCost = 100;
-        for(int i=0;i<steps;i++) {
-            System.out.println("Params: " + theta);
-            double cost = calculateCost(learningDataSet);
-            System.out.println("Cost: " + prevCost + " -> " + cost + "(" + (cost - prevCost) + ")");
-            prevCost = cost;
-            
-            /**
-             * theta - alpha / n * X' * (X * theta - y)
-             */
-            theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).scale(alpha / learningDataSet.size()));
-            parameters = theta;
-        }
+//        double prevCost = 100;
+//        for(int i=0;i<steps;i++) {
+//            System.out.println("Params: " + theta);
+//            double cost = calculateCost(learningDataSet);
+//            System.out.println("Cost: " + prevCost + " -> " + cost + "(" + (cost - prevCost) + ")");
+//            prevCost = cost;
+//            
+//            /**
+//             * theta - alpha / n * X' * (X * theta - y)
+//             */
+//            theta = theta.minus(X.transpose().multiply(X.multiply(theta).minus(y)).scale(alpha / learningDataSet.size()));
+//            parameters = theta;
+//        }
 
     }
 
@@ -82,14 +83,14 @@ public class LinearRegressionModel implements MLModel {
                 .toArray();
     }
 
-    private static Matrix getStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
+    private static Matrix createStandardizedInputMatrix(List<LearningData> learningDataSet, Standardizer[] standardizers) {
         double[][] values = learningDataSet.stream()
-                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input().values(), standardizers))).toArray())
+                .map(learningData -> DoubleStream.concat(DoubleStream.of(1), DoubleStream.of(MLStat.standardize(learningData.input(), standardizers))).toArray())
                 .toArray(double[][]::new);
         return new Matrix(values);
     }
 
-    private static Vector getOutputVector(List<LearningData> learningDataSet) {
+    private static Vector createOutputVector(List<LearningData> learningDataSet) {
         double[] values = learningDataSet.stream()
                 .mapToDouble(learningData -> learningData.output())
                 .toArray();
@@ -97,7 +98,7 @@ public class LinearRegressionModel implements MLModel {
     }
 
     @Override
-    public double calculateOutput(Input input) {
+    public double calculateOutput(Vector input) {
         checkDimension(input);
         return parameters.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> parameters.get(i + 1) * standardizers[i].standardize(input.get(i))).sum();
     }
@@ -107,9 +108,19 @@ public class LinearRegressionModel implements MLModel {
         int n = learningDataSet.size();
         return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output() - calculateOutput(learningData.input()))).sum() / (2 * n);
     }
+    
+    private double calculateCost(List<LearningData> learningDataSet, Vector weights) {
+        int n = learningDataSet.size();
+        return learningDataSet.stream().mapToDouble(learningData -> MLMath.square(learningData.output() - calculateOutput(learningData.input(), weights))).sum() / (2 * n);
+    }
+    
+    public double calculateOutput(Vector input, Vector weights) {
+        checkDimension(input);
+        return weights.get(0) + IntStream.range(0, inputDimension).mapToDouble(i -> weights.get(i + 1) * standardizers[i].standardize(input.get(i))).sum();
+    }
 
-    private void checkDimension(Input input) {
-        if (input.dimension() != inputDimension)
+    private void checkDimension(Vector input) {
+        if (input.length() != inputDimension)
             throw new IllegalArgumentException("Input dimension must be " + inputDimension);
     }
 

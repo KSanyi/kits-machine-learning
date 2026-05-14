@@ -1,6 +1,8 @@
 package kits.ml.core;
 
-public record LearningData(Input input, double output) {
+import kits.ml.core.math.linalg.Vector;
+
+public record LearningData(Vector input, double output) {
 
     @Override
     public String toString() {

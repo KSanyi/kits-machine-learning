@@ -3,10 +3,10 @@ package kits.ml.coursera;
 import java.util.Arrays;
 import java.util.List;
 
-import kits.ml.core.Input;
 import kits.ml.core.LearningData;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Matrix;
+import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.NeuralNet;
 
 public class Exercise4 {
@@ -18,22 +18,22 @@ public class Exercise4 {
         
     
     static final List<LearningData> learningDataSet = Arrays.asList(
-            new LearningData(new Input( 0.1682942, -0.1922795), 2),
-            new LearningData(new Input( 0.1818595, -0.1501974), 3),
-            new LearningData(new Input( 0.0282240,  0.0299754), 4),
-            new LearningData(new Input(-0.1513605,  0.1825891), 1),
-            new LearningData(new Input(-0.1917849,  0.1673311), 2),
-            new LearningData(new Input(-0.0558831, -0.0017703), 3),
-            new LearningData(new Input( 0.1313973, -0.1692441), 4),
-            new LearningData(new Input( 0.1978716, -0.1811157), 1),
-            new LearningData(new Input( 0.0824237, -0.0264704), 2),
-            new LearningData(new Input(-0.1088042,  0.1525117), 3),
-            new LearningData(new Input(-0.1999980,  0.1912752), 4),
-            new LearningData(new Input(-0.1073146,  0.0541812), 1),
-            new LearningData(new Input( 0.0840334, -0.1327268), 2),
-            new LearningData(new Input( 0.1981215, -0.1976063), 3),
-            new LearningData(new Input( 0.1300576, -0.0808075), 4),
-            new LearningData(new Input(-0.0575807,  0.1102853), 1));
+            new LearningData(new Vector( 0.1682942, -0.1922795), 2),
+            new LearningData(new Vector( 0.1818595, -0.1501974), 3),
+            new LearningData(new Vector( 0.0282240,  0.0299754), 4),
+            new LearningData(new Vector(-0.1513605,  0.1825891), 1),
+            new LearningData(new Vector(-0.1917849,  0.1673311), 2),
+            new LearningData(new Vector(-0.0558831, -0.0017703), 3),
+            new LearningData(new Vector( 0.1313973, -0.1692441), 4),
+            new LearningData(new Vector( 0.1978716, -0.1811157), 1),
+            new LearningData(new Vector( 0.0824237, -0.0264704), 2),
+            new LearningData(new Vector(-0.1088042,  0.1525117), 3),
+            new LearningData(new Vector(-0.1999980,  0.1912752), 4),
+            new LearningData(new Vector(-0.1073146,  0.0541812), 1),
+            new LearningData(new Vector( 0.0840334, -0.1327268), 2),
+            new LearningData(new Vector( 0.1981215, -0.1976063), 3),
+            new LearningData(new Vector( 0.1300576, -0.0808075), 4),
+            new LearningData(new Vector(-0.0575807,  0.1102853), 1));
          
     static final double[][] weights1 = new double[][] {
         { 0.84147,  0.41212, -0.96140},

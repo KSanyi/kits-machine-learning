@@ -8,7 +8,7 @@ import kits.ml.util.StopWatch;
 
 public class CholeskyDecompositionCalculatorTest {
 
-    //@Test
+    @Test
     public void test() {
         Random random = new Random();
         Matrix L = RandomUtils.generateRandomLowerTriangularMatrix(10, () -> random.nextDouble(100));
@@ -23,7 +23,7 @@ public class CholeskyDecompositionCalculatorTest {
         System.out.println();
         printSample(cL);
         
-        int n = 10000;
+        int n = 1000;
         Matrix X = MatrixFactory.createDiagonal(n, 99);
         Matrix C = X.plus(MatrixFactory.createOnes(n));
         
