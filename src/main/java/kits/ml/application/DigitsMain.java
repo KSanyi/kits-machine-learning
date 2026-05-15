@@ -6,15 +6,22 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kits.ml.core.DataSets;
 import kits.ml.core.LearningData;
 import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.VectorizedNeuralNet;
+import kits.ml.util.StopWatch;
 
 public class DigitsMain {
+
+    private static final Logger log = LoggerFactory.getLogger(DigitsMain.class);
 
     public static void main(String[] args) throws Exception {
         
@@ -33,16 +40,17 @@ public class DigitsMain {
     }
     
     private static VectorizedNeuralNet teachNeuralNet() throws Exception {
-        System.out.println("Start");
+        log.info("Start");
         List<LearningData> learningData = createLearningData("Kaggle/Digits");
         
-        System.out.println("Splitting data to training and test sets");
+        log.info("Splitting data to training and test sets");
         DataSets dataSets = DataSets.create(learningData, 80);
         
         int inputDimenstion = dataSets.testData().get(0).input().length();
         
         VectorizedNeuralNet neuralNet = new VectorizedNeuralNet(0.001, inputDimenstion, 30, 10);
-        learn(neuralNet, dataSets.trainingData());
+        Random random = new Random(0);
+        learn(neuralNet, dataSets.trainingData(), random);
         
         return neuralNet;
     }
@@ -61,7 +69,7 @@ public class DigitsMain {
 
     private static List<LearningData> createLearningData(String path) throws Exception {
         
-        System.out.println("Loading data from " + path);
+        log.info("Loading data from {}", path);
         List<LearningData> learningDatas = new ArrayList<>();
         for(File folder : Paths.get(path).toFile().listFiles()) {
             String name = folder.getName();
@@ -70,7 +78,7 @@ public class DigitsMain {
                 Vector input = createInput(file);
                 learningDatas.add(new LearningData(input, digit));
             }
-            System.out.println("Data loaded for folder " + name);
+            log.info("Data loaded for folder {}", name);
         }
         
         return learningDatas;
@@ -104,30 +112,33 @@ public class DigitsMain {
         return new Vector(data);
     }
     
-    private static void learn(VectorizedNeuralNet neuralNet, List<LearningData> trainingData) {
+    private static void learn(VectorizedNeuralNet neuralNet, List<LearningData> trainingData, Random random) {
         neuralNet.randomizeWeights();
 
-        Collections.shuffle(trainingData);
+        Collections.shuffle(trainingData, random);
         
-        System.out.println("Initial cost: " + calculateCost(neuralNet, trainingData));
+        log.info("Initial cost: {}", calculateCost(neuralNet, trainingData));
         for(int i=0;i<100;i++) {
-            for(LearningData learningData : trainingData) {
-                neuralNet.learn(learningData.input(), Vector.createOneHot(10, (int)learningData.output()));
-            }
+            StopWatch.timed(() -> train(neuralNet, trainingData), "Epoch " + i);
             // System.out.println("Epoch " + (i + 1) + " cost: " + calculateCost(neuralNet, trainingData));
-            // test(neuralNet, trainingData);
-            System.out.println("Epoch " + i);
+            test(neuralNet, trainingData);
+        }
+    }
+    
+    private static void train(VectorizedNeuralNet neuralNet, List<LearningData> trainingData) {
+        for(LearningData learningData : trainingData) {
+            neuralNet.learn(learningData.input(), Vector.createOneHot(10, (int)learningData.output()));
         }
     }
     
     private static void test(VectorizedNeuralNet neuralNet, List<LearningData> testData) {
         int score = 0;
-        for(LearningData testDataRow : testData) {
+        for(LearningData testDataRow : testData)  {
             int predictedNumber = findIndexForMaxOutput(neuralNet.predict(testDataRow.input()));
             if(predictedNumber == testDataRow.output()) score++;
             //System.out.println(testDataRow.output() + " predicted: " + predictedNumber);
         }
-        System.out.println((double)score / testData.size());
+        log.info("Score: {}", (double)score / testData.size());
     }
     
     private static int findIndexForMaxOutput(Vector vector) {

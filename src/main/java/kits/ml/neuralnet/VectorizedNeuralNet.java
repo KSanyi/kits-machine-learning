@@ -38,7 +38,7 @@ public class VectorizedNeuralNet {
     }
 
     public void randomizeWeights() {
-        Random random = new Random();
+        Random random = new Random(0);
         
         for(Matrix matrix : weightMatrixes) {
             // Xavier initialization
@@ -91,9 +91,10 @@ public class VectorizedNeuralNet {
         // Gradient descent: update weights and biases
         for (int i = 0; i < n; i++) {
             // dW[l] = delta[l] ⊗ activations[l]  (outer product)
+            deltas[i].scaleThis(learningRate);
             Matrix dW = deltas[i].multiply(activations[i]);
-            weightMatrixes[i] = weightMatrixes[i].minus(dW.scale(learningRate));
-            biases[i] = biases[i].minus(deltas[i].scale(learningRate));
+            weightMatrixes[i].minusThis(dW);
+            biases[i].minusThis(deltas[i]);
         }
     }
 

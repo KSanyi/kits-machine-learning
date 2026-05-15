@@ -69,6 +69,14 @@ public class Vector {
         return new Vector(resultValues);
     }
     
+    public void minusThis(Vector other) {
+        if(length != other.length) throw new IllegalArgumentException("Dimension mismatch: " + length + " vs " + other.length);
+        
+        for(int i=0;i<length;i++) {
+            values[i] = values[i] - other.values[i];
+        }
+    }
+    
     public Vector scale(double lambda) {
         
         double[] resultValues = new double[length];
@@ -77,6 +85,13 @@ public class Vector {
         }
         
         return new Vector(resultValues);
+    }
+    
+    public void scaleThis(double lambda) {
+        
+        for(int i=0;i<length;i++) {
+            values[i] = lambda * values[i];
+        }
     }
     
     public Matrix multiply(Vector other) {

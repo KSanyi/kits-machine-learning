@@ -106,6 +106,24 @@ public class Matrix {
         return new Matrix(resultValues);
     }
     
+    public void plusThis(Matrix other) {
+        applyOperationOnThis(other, (a, b) -> a + b);
+    }
+    
+    public void minusThis(Matrix other) {
+        applyOperationOnThis(other, (a, b) -> a - b);
+    }
+    
+    private void applyOperationOnThis(Matrix other, BinaryOperator<Double> operator) {
+        if(nrRows != other.nrRows || nrCols != other.nrCols) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + other.printDimenstions());
+        
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
+                values[rowIndex][columnIndex] = operator.apply(values[rowIndex][columnIndex], other.values[rowIndex][columnIndex]);
+            }
+        }
+    }
+    
     public Matrix scale(double lambda) {
         double[][] resultValues = new double[nrRows][nrCols];
         for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
@@ -114,6 +132,14 @@ public class Matrix {
             }
         }
         return new Matrix(resultValues);
+    }
+    
+    public void scaleThis(double lambda) {
+        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
+            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
+                values[rowIndex][columnIndex] = lambda * values[rowIndex][columnIndex];
+            }
+        }
     }
     
     // just for educational purposes, this is 3 times slower than the below one
