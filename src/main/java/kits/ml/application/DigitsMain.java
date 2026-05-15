@@ -25,7 +25,9 @@ public class DigitsMain {
 
     public static void main(String[] args) throws Exception {
         
-         VectorizedNeuralNet neuralNet = teachNeuralNet();
+        Random random = new Random(0);
+        VectorizedNeuralNet neuralNet = teachNeuralNet(random);
+         
          //neuralNet.save("./digitsnet");
         
 //        VectorizedNeuralNet neuralNet = VectorizedNeuralNet.load("./digitsnet");
@@ -39,7 +41,7 @@ public class DigitsMain {
         
     }
     
-    private static VectorizedNeuralNet teachNeuralNet() throws Exception {
+    private static VectorizedNeuralNet teachNeuralNet(Random random) throws Exception {
         log.info("Start");
         List<LearningData> learningData = createLearningData("Kaggle/Digits");
         
@@ -48,8 +50,7 @@ public class DigitsMain {
         
         int inputDimenstion = dataSets.testData().get(0).input().length();
         
-        VectorizedNeuralNet neuralNet = new VectorizedNeuralNet(0.001, inputDimenstion, 30, 10);
-        Random random = new Random(0);
+        VectorizedNeuralNet neuralNet = new VectorizedNeuralNet(0.001, random, inputDimenstion, 30, 10);
         learn(neuralNet, dataSets.trainingData(), random);
         
         return neuralNet;
@@ -115,19 +116,18 @@ public class DigitsMain {
     private static void learn(VectorizedNeuralNet neuralNet, List<LearningData> trainingData, Random random) {
         neuralNet.randomizeWeights();
 
-        Collections.shuffle(trainingData, random);
-        
         log.info("Initial cost: {}", calculateCost(neuralNet, trainingData));
         for(int i=0;i<100;i++) {
-            StopWatch.timed(() -> train(neuralNet, trainingData), "Epoch " + i);
-            // System.out.println("Epoch " + (i + 1) + " cost: " + calculateCost(neuralNet, trainingData));
+            StopWatch.timed(() -> train(neuralNet, trainingData, random), "Epoch " + i);
+            System.out.println("Epoch " + (i + 1) + " cost: " + calculateCost(neuralNet, trainingData));
             test(neuralNet, trainingData);
         }
     }
     
-    private static void train(VectorizedNeuralNet neuralNet, List<LearningData> trainingData) {
+    private static void train(VectorizedNeuralNet neuralNet, List<LearningData> trainingData, Random random) {
+        Collections.shuffle(trainingData, random);
         for(LearningData learningData : trainingData) {
-            neuralNet.learn(learningData.input(), Vector.createOneHot(10, (int)learningData.output()));
+            neuralNet.learn(List.of(learningData));
         }
     }
     

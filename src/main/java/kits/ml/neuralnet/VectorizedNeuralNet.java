@@ -7,8 +7,10 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
+import kits.ml.core.LearningData;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Matrix;
 import kits.ml.core.math.linalg.Vector;
@@ -20,13 +22,16 @@ public class VectorizedNeuralNet {
     private final Vector[] biases;
 
     private final double learningRate;
+    
+    private final Random random;
 
     public VectorizedNeuralNet(int ... neuronsInLayers) {
-        this(0.1, neuronsInLayers);
+        this(0.1, new Random(), neuronsInLayers);
     }
 
-    public VectorizedNeuralNet(double learningRate, int ... neuronsInLayers) {
+    public VectorizedNeuralNet(double learningRate, Random random, int ... neuronsInLayers) {
         this.learningRate = learningRate;
+        this.random = random;
         weightMatrixes = new Matrix[neuronsInLayers.length-1];
         biases = new Vector[neuronsInLayers.length-1];
         for(int i=1;i<neuronsInLayers.length;i++) {
@@ -38,8 +43,6 @@ public class VectorizedNeuralNet {
     }
 
     public void randomizeWeights() {
-        Random random = new Random(0);
-        
         for(Matrix matrix : weightMatrixes) {
             // Xavier initialization
             double sigma = MLMath.sqrt(1.0 / (matrix.getNrColumns() + matrix.getNrRows()));
@@ -62,41 +65,70 @@ public class VectorizedNeuralNet {
         return vector;
     }
     
-    public void learn(Vector input, Vector trueOutputVector) {
+    public void learn(List<LearningData> trainingBatch) {
         int n = weightMatrixes.length;
         
-        // Forward pass: store pre-activations z[l] and activations a[l] for each layer
+        List<Gradient> gradientList = trainingBatch.stream().map(trainingData -> calculateGradient(n, trainingData)).toList();
+        
+        Gradient gradient = calculateAverage(gradientList);
+        
+        // Gradient descent: update weights and biases
+        for (int i = 0; i < n; i++) {
+            // dW[l] = delta[l] ⊗ activations[l]  (outer product)
+            Matrix dW = gradient.weightMatrixGradients[i];
+            Vector db = gradient.biasGradients[i];
+            dW.scaleThis(learningRate);
+            db.scaleThis(learningRate);
+            weightMatrixes[i].minusThis(dW);
+            biases[i].minusThis(db);
+        }
+    }
+    
+    private Gradient calculateGradient(int n, LearningData trainingData) {
         Vector[] activations = new Vector[n + 1];
         Vector[] preActivations = new Vector[n];
 
-        activations[0] = input;
+        activations[0] = trainingData.input();
         for (int i = 0; i < n; i++) {
             preActivations[i] = weightMatrixes[i].multiply(activations[i]).plus(biases[i]);
             activations[i + 1] = MLMath.sigmoid(preActivations[i]);
         }
 
         // Backward pass: compute error deltas from output to input
-        Vector[] deltas = new Vector[n];
+        Vector[] dbs = new Vector[n];
+        Matrix[] dWs = new Matrix[n];
 
         // Output layer delta for binary cross-entropy + sigmoid: delta = a_out - y
-        deltas[n - 1] = activations[n].minus(trueOutputVector);
+        dbs[n - 1] = activations[n].minus(Vector.createOneHot(10, (int)trainingData.output()));
+        dWs[n - 1] = dbs[n -1].multiply(activations[n - 1]);
 
         // Hidden layer deltas: delta[l] = (W[l+1]^T * delta[l+1]) ⊙ sigmoid'(z[l])
+        // sigmoid'(z) = a*(1-a) where a = sigmoid(z) = activations[l+1]
         for (int i = n - 2; i >= 0; i--) {
-            Vector wTDelta = weightMatrixes[i + 1].transpose().multiply(deltas[i + 1]);
-            Vector sigmoidGrad = MLMath.sigmoidGradient(activations[i + 1]);
-            deltas[i] = wTDelta.map(j -> wTDelta.get(j) * sigmoidGrad.get(j));
+            Vector wTDelta = weightMatrixes[i + 1].transpose().multiply(dbs[i + 1]);
+            Vector aNext = activations[i + 1];
+            Vector sigmoidGrad = aNext.map(j -> aNext.get(j) * (1 - aNext.get(j)));
+            dbs[i] = wTDelta.map(j -> wTDelta.get(j) * sigmoidGrad.get(j));
+            dWs[i] = dbs[i].multiply(activations[i]);
         }
-
-        // Gradient descent: update weights and biases
-        for (int i = 0; i < n; i++) {
-            // dW[l] = delta[l] ⊗ activations[l]  (outer product)
-            deltas[i].scaleThis(learningRate);
-            Matrix dW = deltas[i].multiply(activations[i]);
-            weightMatrixes[i].minusThis(dW);
-            biases[i].minusThis(deltas[i]);
-        }
+        
+        return new Gradient(dWs, dbs);
     }
+    
+    private Gradient calculateAverage(List<Gradient> gradientList) {
+        Gradient avg = gradientList.get(0);
+        int n = avg.biasGradients.length;
+        
+        for(int i=1;i<gradientList.size();i++) {
+            for(int j=0;j<n;j++) {
+            }
+        }
+        
+        return avg;
+    }
+    
+    private static record Gradient(Matrix[] weightMatrixGradients, Vector[] biasGradients) {}
+
 
     public void save(String filePath) throws IOException {
         try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
@@ -152,7 +184,7 @@ public class VectorizedNeuralNet {
                 neuronsInLayers[l + 1] = loadedWeights[l].getNrRows();
             }
 
-            VectorizedNeuralNet net = new VectorizedNeuralNet(learningRate, neuronsInLayers);
+            VectorizedNeuralNet net = new VectorizedNeuralNet(learningRate, new Random(), neuronsInLayers);
             for (int l = 0; l < n; l++) {
                 net.weightMatrixes[l] = loadedWeights[l];
                 net.biases[l] = loadedBiases[l];
