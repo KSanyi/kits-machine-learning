@@ -69,6 +69,14 @@ public class Vector {
         return new Vector(resultValues);
     }
     
+    public void plusThis(Vector other) {
+        if(length != other.length) throw new IllegalArgumentException("Dimension mismatch: " + length + " vs " + other.length);
+        
+        for(int i=0;i<length;i++) {
+            values[i] = values[i] + other.values[i];
+        }
+    }
+    
     public void minusThis(Vector other) {
         if(length != other.length) throw new IllegalArgumentException("Dimension mismatch: " + length + " vs " + other.length);
         

@@ -26,8 +26,20 @@ public class DigitsMain {
     public static void main(String[] args) throws Exception {
         
         Random random = new Random(0);
-        VectorizedNeuralNet neuralNet = teachNeuralNet(random);
+//        VectorizedNeuralNet neuralNet = teachNeuralNet(random);
+//        neuralNet.save("./digitsnet");
+        
+         VectorizedNeuralNet neuralNet = VectorizedNeuralNet.load("./digitsnet_20260514");
          
+         neuralNet.save2("./digitsnet_20260514_2");
+//        
+//        List<LearningData> learningData = createLearningData("Kaggle/Digits");
+//        
+//        log.info("Splitting data to training and test sets");
+//        DataSets dataSets = DataSets.create(learningData, 80);
+//        
+//        test(neuralNet, dataSets.testData());
+        
          //neuralNet.save("./digitsnet");
         
 //        VectorizedNeuralNet neuralNet = VectorizedNeuralNet.load("./digitsnet");
@@ -50,7 +62,7 @@ public class DigitsMain {
         
         int inputDimenstion = dataSets.testData().get(0).input().length();
         
-        VectorizedNeuralNet neuralNet = new VectorizedNeuralNet(0.001, random, inputDimenstion, 30, 10);
+        VectorizedNeuralNet neuralNet = new VectorizedNeuralNet(0.004, random, inputDimenstion, 30, 10);
         learn(neuralNet, dataSets.trainingData(), random);
         
         return neuralNet;
@@ -117,20 +129,30 @@ public class DigitsMain {
         neuralNet.randomizeWeights();
 
         log.info("Initial cost: {}", calculateCost(neuralNet, trainingData));
-        for(int i=0;i<100;i++) {
+        for(int i=0;i<50;i++) {
             StopWatch.timed(() -> train(neuralNet, trainingData, random), "Epoch " + i);
-            System.out.println("Epoch " + (i + 1) + " cost: " + calculateCost(neuralNet, trainingData));
+            //System.out.println("Epoch " + (i + 1) + " cost: " + calculateCost(neuralNet, trainingData));
             test(neuralNet, trainingData);
         }
     }
     
     private static void train(VectorizedNeuralNet neuralNet, List<LearningData> trainingData, Random random) {
         Collections.shuffle(trainingData, random);
-        for(LearningData learningData : trainingData) {
-            neuralNet.learn(List.of(learningData));
+        
+        List<List<LearningData>> batches = createBatches(trainingData, 1);
+        for(List<LearningData> batch : batches) {
+            neuralNet.learn(batch);
         }
     }
     
+    private static List<List<LearningData>> createBatches(List<LearningData> trainingData, int batchSize) {
+        List<List<LearningData>> batches = new ArrayList<List<LearningData>>();
+        for(int i=0;i<trainingData.size()-batchSize;i+=batchSize) {
+            batches.add(trainingData.subList(i, i+batchSize));
+        }
+        return batches;
+    }
+
     private static void test(VectorizedNeuralNet neuralNet, List<LearningData> testData) {
         int score = 0;
         for(LearningData testDataRow : testData)  {

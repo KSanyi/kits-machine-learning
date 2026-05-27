@@ -1,23 +1,14 @@
-package kits.ml.neuralnet;
+package kits.ml.digitsstanadlone;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-
-import kits.ml.core.LearningData;
-import kits.ml.core.math.MLMath;
-import kits.ml.core.math.linalg.Matrix;
-import kits.ml.core.math.linalg.Vector;
 
 public class VectorizedNeuralNet {
 
@@ -27,14 +18,17 @@ public class VectorizedNeuralNet {
 
     private final double learningRate;
     
+    private final CostFunction costFunction;
+    
     private final Random random;
 
     public VectorizedNeuralNet(int ... neuronsInLayers) {
-        this(0.1, new Random(), neuronsInLayers);
+        this(0.1, new QuadraticCostFunction(), new Random(), neuronsInLayers);
     }
 
-    public VectorizedNeuralNet(double learningRate, Random random, int ... neuronsInLayers) {
+    public VectorizedNeuralNet(double learningRate, CostFunction costFunction, Random random, int ... neuronsInLayers) {
         this.learningRate = learningRate;
+        this.costFunction = costFunction;
         this.random = random;
         weightMatrixes = new Matrix[neuronsInLayers.length-1];
         biases = new Vector[neuronsInLayers.length-1];
@@ -69,52 +63,24 @@ public class VectorizedNeuralNet {
         return vector;
     }
     
-    public void learn(List<LearningData> trainingBatch) {
+    public void learn(LearningData trainingData) {
         int n = weightMatrixes.length;
         
-        List<Gradient> gradientList = trainingBatch.parallelStream().map(trainingData -> calculateGradient(n, trainingData)).toList();
-        
-        Gradient gradient = calculateAverage(gradientList);
-        
-        // Gradient descent: update weights and biases
-        for (int i = 0; i < n; i++) {
-            // dW[l] = delta[l] ⊗ activations[l]  (outer product)
-            Matrix dW = gradient.weightMatrixGradients[i];
-            Vector db = gradient.biasGradients[i];
-            dW.scaleThis(learningRate);
-            db.scaleThis(learningRate);
-            weightMatrixes[i].minusThis(dW);
-            biases[i].minusThis(db);
-        }
-    }
-    
-    private Gradient calculateGradient(int n, LearningData trainingData) {
-        
-        Vector input = trainingData.input();
+        Vector intput = trainingData.input();
         Vector trueOutput = Vector.createOneHot(10, (int)trainingData.output());
         
         Vector[] activations = new Vector[n + 1];
-        Vector[] preActivations = new Vector[n];
 
-        activations[0] = input;
+        activations[0] = intput;
         for (int i = 0; i < n; i++) {
-            preActivations[i] = weightMatrixes[i].multiply(activations[i]).plus(biases[i]);
-            activations[i + 1] = MLMath.sigmoid(preActivations[i]);
+            activations[i + 1] = MLMath.sigmoid(weightMatrixes[i].multiply(activations[i]).plus(biases[i]));
         }
 
         // Backward pass: compute error deltas from output to input
         Vector[] dbs = new Vector[n];
-        Matrix[] dWs = new Matrix[n];
 
-        // using quadratic cost function
-        Vector aOut = activations[n];
-        Vector error = aOut.minus(trueOutput);
-        dbs[n - 1] = error.map(j -> error.get(j) * aOut.get(j) * (1 - aOut.get(j)));
-        dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
-        
-        // using cross entropy cost function:
-        // dbs[n - 1] = activations[n].minus(Vector.createOneHot(10, (int)trainingData.output()));
-        // dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
+        // Output layer delta for binary cross-entropy + sigmoid: delta = a_out - y
+        dbs[n - 1] = activations[n].minus(trueOutput);
 
         // Hidden layer deltas: delta[l] = (W[l+1]^T * delta[l+1]) ⊙ sigmoid'(z[l])
         // sigmoid'(z) = a*(1-a) where a = sigmoid(z) = activations[l+1]
@@ -123,36 +89,29 @@ public class VectorizedNeuralNet {
             Vector aNext = activations[i + 1];
             Vector sigmoidGrad = aNext.map(j -> aNext.get(j) * (1 - aNext.get(j)));
             dbs[i] = wTDelta.map(j -> wTDelta.get(j) * sigmoidGrad.get(j));
-            dWs[i] = dbs[i].multiply(activations[i]);
         }
         
-        return new Gradient(dWs, dbs);
+        // Gradient descent: update weights and biases
+        for (int i = 0; i < n; i++) {
+            dbs[i].scaleThis(learningRate);
+            Matrix dW = dbs[i].multiply(activations[i]); 
+            weightMatrixes[i].minusThis(dW);
+            biases[i].minusThis(dbs[i]);
+        }
     }
     
-    private static Gradient calculateAverage(List<Gradient> gradientList) {
-        Gradient avg = gradientList.get(0);
-        int batchSize = gradientList.size();
-        int n = avg.biasGradients.length;
-        
-        for(int i=1;i<gradientList.size();i++) {
-            Gradient gradient = gradientList.get(i);
-            for(int j=0;j<n;j++) {
-                avg.weightMatrixGradients[j].plusThis(gradient.weightMatrixGradients[j]);
-                avg.biasGradients[j].plusThis(gradient.biasGradients[j]);
-            }
-        }
-        
-        for(int j=0;j<n;j++) {
-            avg.weightMatrixGradients[j].scaleThis(1.0/batchSize);
-            avg.biasGradients[j].scaleThis(1.0 / batchSize);
-        }
-        
-        return avg;
+    public double calculateCost(List<LearningData> trainingData) {
+        return trainingData.stream()
+                .mapToDouble(data -> calculateCost(data.input(), data.output()))
+                .sum() / trainingData.size();
+    }
+
+    private double calculateCost(Vector input, double output) {
+        Vector trueOutputVector = Vector.createOneHot(10, (int)output);
+        Vector outputVector = predict(input);
+        return costFunction.calculateCost(outputVector, trueOutputVector);
     }
     
-    private static record Gradient(Matrix[] weightMatrixGradients, Vector[] biasGradients) {}
-
-
     public void save(String filePath) throws IOException {
         try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
             out.writeDouble(learningRate);
@@ -170,34 +129,6 @@ public class VectorizedNeuralNet {
                 for (int i = 0; i < b.length(); i++) {
                     out.writeDouble(b.get(i));
                 }
-            }
-        }
-    }
-    
-    public void save2(String filePath) throws IOException {
-        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
-            out.println("learningRate=" + learningRate);
-            out.println("layers=" + weightMatrixes.length);
-            for (int l = 0; l < weightMatrixes.length; l++) {
-                Matrix m = weightMatrixes[l];
-                Vector b = biases[l];
-                out.println();
-                out.println("[layer " + (l + 1) + "]");
-                out.println("rows=" + m.getNrRows());
-                out.println("cols=" + m.getNrColumns());
-                out.println("weights=");
-                for (int r = 0; r < m.getNrRows(); r++) {
-                    StringBuilder row = new StringBuilder();
-                    for (int c = 0; c < m.getNrColumns(); c++) {
-                        if (c > 0) row.append(' ');
-                        row.append(String.format("%.8f", m.get(r, c)));
-                    }
-                    out.println(row);
-                }
-                out.println("biases=");
-                out.println(b.stream()
-                        .mapToObj(v -> String.format("%.8f", v))
-                        .collect(Collectors.joining(" ")));
             }
         }
     }
@@ -235,7 +166,7 @@ public class VectorizedNeuralNet {
                 neuronsInLayers[l + 1] = loadedWeights[l].getNrRows();
             }
 
-            VectorizedNeuralNet net = new VectorizedNeuralNet(learningRate, new Random(), neuronsInLayers);
+            VectorizedNeuralNet net = new VectorizedNeuralNet(learningRate, new QuadraticCostFunction(), new Random(), neuronsInLayers);
             for (int l = 0; l < n; l++) {
                 net.weightMatrixes[l] = loadedWeights[l];
                 net.biases[l] = loadedBiases[l];
