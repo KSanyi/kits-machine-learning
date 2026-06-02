@@ -22,7 +22,7 @@ public class MLMath {
     }
     
     public static Vector sigmoid(Vector x) {
-        return x.map((i -> MLMath.sigmoid(x.get(i))));
+        return x.map(MLMath::sigmoid);
     }
 
     public static double sigmoidGradient(double x) {
@@ -34,7 +34,7 @@ public class MLMath {
     }
     
     public static Vector sigmoidGradient(Vector x) {
-        return x.map((i -> MLMath.sigmoidGradient(x.get(i))));
+        return x.map(MLMath::sigmoidGradient);
     }
     
 }

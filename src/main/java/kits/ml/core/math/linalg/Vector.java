@@ -138,10 +138,10 @@ public class Vector {
         return new Matrix(values);
     }
     
-    public Vector map(Function<Integer, Double> mapper) {
+    public Vector map(Function<Double, Double> mapper) {
         double[] resultValues = new double[length];
         for(int i=0;i<length;i++) {
-            resultValues[i] = mapper.apply(i);
+            resultValues[i] = mapper.apply(get(i));
         }
         return new Vector(resultValues);
     }
@@ -150,6 +150,14 @@ public class Vector {
         for(int i=0;i<length;i++) {
             values[i] = mapper.apply(i);
         }
+    }
+    
+    public Vector hadamardProduct(Vector other) {
+        double[] result = new double[length];
+        for(int i=0;i<length;i++) {
+            result[i] = get(i) * other.get(i);
+        }
+        return new Vector(result);
     }
     
     @Override

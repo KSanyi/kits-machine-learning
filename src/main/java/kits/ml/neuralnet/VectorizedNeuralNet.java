@@ -107,22 +107,20 @@ public class VectorizedNeuralNet {
         Matrix[] dWs = new Matrix[n];
 
         // using quadratic cost function
-        Vector aOut = activations[n];
-        Vector error = aOut.minus(trueOutput);
-        dbs[n - 1] = error.map(j -> error.get(j) * aOut.get(j) * (1 - aOut.get(j)));
-        dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
+//        Vector error = activations[n].minus(trueOutput);
+//        dbs[n - 1] = error.map(j -> error.get(j) * aOut.get(j) * (1 - aOut.get(j)));
+//        dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
         
         // using cross entropy cost function:
-        // dbs[n - 1] = activations[n].minus(Vector.createOneHot(10, (int)trainingData.output()));
-        // dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
+         dbs[n - 1] = activations[n].minus(trueOutput);
+         dWs[n - 1] = dbs[n - 1].multiply(activations[n - 1]);
 
         // Hidden layer deltas: delta[l] = (W[l+1]^T * delta[l+1]) ⊙ sigmoid'(z[l])
         // sigmoid'(z) = a*(1-a) where a = sigmoid(z) = activations[l+1]
         for (int i = n - 2; i >= 0; i--) {
             Vector wTDelta = weightMatrixes[i + 1].transpose().multiply(dbs[i + 1]);
-            Vector aNext = activations[i + 1];
-            Vector sigmoidGrad = aNext.map(j -> aNext.get(j) * (1 - aNext.get(j)));
-            dbs[i] = wTDelta.map(j -> wTDelta.get(j) * sigmoidGrad.get(j));
+            Vector sigmoidGrad = activations[i + 1].map(x -> x * (1 - x));
+            dbs[i] = wTDelta.hadamardProduct(sigmoidGrad);
             dWs[i] = dbs[i].multiply(activations[i]);
         }
         
@@ -142,15 +140,19 @@ public class VectorizedNeuralNet {
             }
         }
         
-        for(int j=0;j<n;j++) {
-            avg.weightMatrixGradients[j].scaleThis(1.0/batchSize);
-            avg.biasGradients[j].scaleThis(1.0 / batchSize);
-        }
+        avg.scaleThis(1.0 / batchSize);
         
         return avg;
     }
     
-    private static record Gradient(Matrix[] weightMatrixGradients, Vector[] biasGradients) {}
+    private static record Gradient(Matrix[] weightMatrixGradients, Vector[] biasGradients) {
+        void scaleThis(double factor) {
+            for(int j=0;j<weightMatrixGradients.length;j++) {
+                weightMatrixGradients[j].scaleThis(factor);
+                biasGradients[j].scaleThis(factor);
+            }
+        }
+    }
 
 
     public void save(String filePath) throws IOException {
