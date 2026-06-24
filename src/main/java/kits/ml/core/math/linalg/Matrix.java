@@ -6,8 +6,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -175,7 +175,7 @@ public class Matrix {
     public Vector multiply(Vector x) {
         if(nrCols != x.length()) throw new IllegalArgumentException("Dimension mismatch: " + printDimenstions() + " vs " + x.length());
         
-        Vector result = Vector.createZero(nrRows);
+        Vector result = new Vector(nrRows);
         for(int index=0;index<nrRows;index++) {
             result.set(index, getRowVector(index).scalarProduct(x));
         }
@@ -243,17 +243,17 @@ public class Matrix {
         return new Matrix(resultValues);
     }
     
-    public Matrix map(BiFunction<Integer, Integer, Double> mapper) {
+    public Matrix map(DoubleFunction<Double> mapper) {
         Matrix other = new Matrix(this);
         other.apply(mapper);
         return other;
     }
     
-    public void apply(BiFunction<Integer, Integer, Double> mapper) {
-        for(int rowIndex=0;rowIndex<nrRows;rowIndex++) {
-            for(int columnIndex=0;columnIndex<nrCols;columnIndex++) {
-                values[rowIndex][columnIndex] = mapper.apply(rowIndex, columnIndex);
-            }
+    public void apply(DoubleFunction<Double> function) {
+        for(int i=0;i<nrRows;i++) {
+            for(int j=0;j<nrCols;j++) {
+                values[i][j] = function.apply(values[i][j]);
+            }   
         }
     }
     

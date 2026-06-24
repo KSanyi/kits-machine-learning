@@ -23,7 +23,7 @@ public class GradientDescentWithMomentumOptimizer implements GradientOptimizer {
         
         Vector xVector = startingVector;
         
-        Vector prevMomentum = Vector.createZero(startingVector.length());
+        Vector prevMomentum = new Vector(startingVector.length());
         double prevValue = Double.MAX_VALUE;
         for (int i = 0; i < steps; i++) {
             double currentValue = function.apply(xVector);

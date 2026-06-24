@@ -1,118 +1,140 @@
 package kits.ml.neuralnet;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
+import java.util.Random;
 
-import kits.ml.core.LearningData;
+import kits.ml.core.DataPoint;
 import kits.ml.core.math.MLMath;
+import kits.ml.core.math.linalg.Matrix;
 import kits.ml.core.math.linalg.Vector;
+import kits.ml.util.Logger;
 
 public class NeuralNet {
 
-    private final List<Layer> hiddenLayers;
-
-    private final double lambda;
-
-    public NeuralNet(List<double[][]> layerWeights, double lambda) {
-        hiddenLayers = new ArrayList<>();
-        for (double[][] weights : layerWeights) {
-            hiddenLayers.add(new Layer(weights));
+    private final Logger logger = new Logger();
+    
+    private final Matrix[] weightMatrixes;
+    
+    private final Vector[] biasVectors;
+    
+    private final int numberOfLayers;
+    
+    private final CostFunction costFunction;
+    
+    private final ActivationFunction activationFunction;
+    
+    private double learningRate = 0.01;
+    
+    private double numberOfEpochs = 100;
+    
+    public NeuralNet(CostFunction costFunction, ActivationFunction activationFunction, int ... neuronsPerLayer) {
+        
+        this.costFunction = costFunction;
+        this.activationFunction = activationFunction;
+        numberOfLayers = neuronsPerLayer.length;
+        
+        weightMatrixes = new Matrix[numberOfLayers-1];
+        biasVectors = new Vector[numberOfLayers-1];
+        
+        for(int i=0;i<numberOfLayers-1;i++) {
+            int numberOfNeuronsInCurrentLayer = neuronsPerLayer[i];
+            int numberOfNeuronsInNextLayer = neuronsPerLayer[i+1];
+            
+            weightMatrixes[i] = new Matrix(numberOfNeuronsInNextLayer, numberOfNeuronsInCurrentLayer);
+            biasVectors[i] = new Vector(numberOfNeuronsInNextLayer);
         }
-        this.lambda = lambda;
+        
+        randomizeWeights();
     }
-
-    public NeuralNet(int inputDimension, double lambda, int... hiddenLayerNeurons) {
-        if (hiddenLayerNeurons.length == 0)
-            throw new IllegalArgumentException("At least 1 layer is expected");
-
-        hiddenLayers = new ArrayList<>();
-        int numberOfNeuronsInPrevLayer = inputDimension;
-        for (int numberOfNeurons : hiddenLayerNeurons) {
-            hiddenLayers.add(new Layer(numberOfNeurons, numberOfNeuronsInPrevLayer));
-            numberOfNeuronsInPrevLayer = numberOfNeurons;
+    
+    private void randomizeWeights() {
+        Random random = new Random();
+        for(Matrix matrix : weightMatrixes) {
+            // Xavier initialization
+            double sigma = MLMath.sqrt(1.0 / (matrix.getNrColumns() + matrix.getNrRows()));
+            matrix.apply(x -> random.nextGaussian() * sigma);
         }
-
-        this.lambda = lambda;
+        
+        for(Vector biasVector : biasVectors) {
+            biasVector.apply(i -> random.nextDouble(-0.01, 0.01));
+        }
     }
 
-    public int predict(Vector input) {
-        return findIndexForMaxOutput(calculateOutput(input)) + 1;
-    }
 
-    private static int findIndexForMaxOutput(double[] output) {
-        double max = 0;
-        int indexForMax = -1;
-        for (int i = 0; i < output.length; i++) {
-            // System.out.println("Output for " + (i+1) + " " + output[i]);
-            if (output[i] > max) {
-                max = output[i];
-                indexForMax = i;
+    public void learn(List<DataPoint> dataPoints) {
+        for(int i=0;i<numberOfEpochs;i++) {
+            Collections.shuffle(dataPoints);
+            for(DataPoint datapoint : dataPoints) {
+                learn(datapoint);
             }
-        }
-        return indexForMax;
-    }
-
-    public double calculateCost(List<LearningData> learningDataSet) {
-        int n = learningDataSet.size();
-
-        double cost = learningDataSet.stream().mapToDouble(this::calculateCost).sum() / n;
-        double regularizedCost = lambda * weightsToRegularize().map(MLMath::square).sum() / (2 * n);
-        return cost + regularizedCost;
-    }
-
-    private DoubleStream weightsToRegularize() {
-        return hiddenLayers.stream().flatMapToDouble(Layer::weightsToRegularize);
-    }
-
-    private double calculateCost(LearningData learningData) {
-        Vector input = learningData.input();
-        double[] calculatedOutput = calculateOutput(input);
-        double[] expectedOutput = calculateExpectedOutputArray(learningData.output(), calculatedOutput.length);
-
-        return IntStream.range(0, calculatedOutput.length)
-                .mapToDouble(i -> -expectedOutput[i] * Math.log(calculatedOutput[i]) - (1 - expectedOutput[i]) * Math.log(1 - calculatedOutput[i])).sum();
-    }
-
-    private static double[] calculateExpectedOutputArray(double output, int size) {
-        int outputIndex = (int) output - 1;
-        double[] expectedOutput = new double[size];
-        expectedOutput[outputIndex] = 1;
-        return expectedOutput;
-    }
-
-    public double[] calculateOutput(Vector input) {
-        Vector inp = input;
-        double[] output = null;
-        for (Layer hiddenLayer : hiddenLayers) {
-            output = hiddenLayer.calculateOutput(inp);
-            inp = new Vector(output);
-        }
-
-        return output;
-    }
-
-    private static class Layer {
-
-        final List<Neuron> neurons;
-
-        Layer(int numberOfNeurons, int numberOfNeuronsInPrevLayer) {
-            neurons = IntStream.range(0, numberOfNeurons).mapToObj(i -> new Neuron(numberOfNeuronsInPrevLayer)).collect(Collectors.toList());
-        }
-
-        Layer(double[][] weights) {
-            neurons = IntStream.range(0, weights.length).mapToObj(i -> new Neuron(weights[i])).collect(Collectors.toList());
-        }
-
-        double[] calculateOutput(Vector input) {
-            return neurons.stream().mapToDouble(neuron -> neuron.calculateOutput(input)).toArray();
-        }
-
-        DoubleStream weightsToRegularize() {
-            return neurons.stream().flatMapToDouble(Neuron::weightsToRegularize);
+            logger.log("Cost at epoch " + i + ": " + cost(dataPoints));
         }
     }
+    
+    public void learn(DataPoint dataPoint) {
+
+        Vector[] activations = new Vector[numberOfLayers];
+        activations[0] = dataPoint.input();
+        for(int i=0;i<numberOfLayers-1;i++) {
+            activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(activationFunction::apply);
+        }
+
+        Vector target = dataPoint.output();
+        Gradient gradient = calculateGradient(activations, target);
+        
+        for(int i=0;i<numberOfLayers-1;i++) {
+            weightMatrixes[i] = weightMatrixes[i].minus(gradient.dWs[i].scale(learningRate));
+            biasVectors[i] = biasVectors[i].minus(gradient.dbs[i].scale(learningRate));
+        }
+    }
+    
+    private Gradient calculateGradient(Vector[] activations, Vector target) {
+        int n = weightMatrixes.length;
+        Matrix[] dWs = new Matrix[n];
+        Vector[] dbs = new Vector[n];
+        Vector costGradient = costFunction.gradient(activations[n], target);
+        Vector outputActivationGradient = activations[n].map(activationFunction::derivative);
+        dbs[n-1] = costGradient.hadamardProduct(outputActivationGradient);
+        dWs[n-1] = dbs[n-1].multiply(activations[n-1]);
+
+        for (int i = n-2; i >= 0; i--) {
+            Vector wTDelta = weightMatrixes[i+1].transpose().multiply(dbs[i+1]);
+            Vector activationGrad = activations[i+1].map(activationFunction::derivative);
+            dbs[i] = wTDelta.hadamardProduct(activationGrad);
+            dWs[i] = dbs[i].multiply(activations[i]);
+        }
+        
+        return new Gradient(dWs, dbs);
+    }
+
+    public Vector predict(Vector input) {
+        Vector vector = input;
+        for(int i=0;i<numberOfLayers-1;i++) {
+            vector = weightMatrixes[i].multiply(vector).plus(biasVectors[i]).map(activationFunction::apply);
+        }
+        return vector;
+    }
+
+    public double cost(List<DataPoint> dataPoints) {
+        return dataPoints.stream().mapToDouble(this::cost).sum() / dataPoints.size();
+    }
+    
+    public double cost(DataPoint dataPoint) {
+        Vector predictedOutput = predict(dataPoint.input());
+        Vector trueOutput = dataPoint.output();
+        
+        return costFunction.cost(predictedOutput, trueOutput);
+    }
+
+    public void setNumberOfEpochs(int numberOfEpochs) {
+        this.numberOfEpochs = numberOfEpochs;
+    }
+
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+    
+    private static record Gradient(Matrix[] dWs, Vector[] dbs) {}
 
 }

@@ -25,6 +25,10 @@ public class Vector {
         length = values.length;
     }
     
+    public Vector(int length) {
+        this(new double[length]);
+    }
+
     public int length() {
         return length;
     }
@@ -191,16 +195,10 @@ public class Vector {
         return DoubleStream.of(values);
     }
     
-    public static Vector createZero(int length) {
-        double[] data = new double[length];
-        return new Vector(data);
-    }
-    
     public static Vector createOneHot(int length, int value) {
-        Vector oneHot = Vector.createZero(length);
+        Vector oneHot = new Vector(length);
         oneHot.set(value, 1);
         return oneHot;
     }
-
 
 }

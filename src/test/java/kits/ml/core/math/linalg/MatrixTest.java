@@ -81,7 +81,7 @@ public class MatrixTest {
                 {2, 4},
                 {6, 8}});
         
-        assertEquals(expected, A.map((i,j) -> A.get(i, j) * 2.0));
+        assertEquals(expected, A.map(x -> x * 2.0));
     }
     
     @Test

@@ -1,9 +1,10 @@
-package kits.ml.core;
+package kits.ml.regression;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import kits.ml.core.LearningData;
 import kits.ml.core.math.linalg.Vector;
 
 public class MultiClassificationModel {

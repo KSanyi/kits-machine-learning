@@ -50,7 +50,7 @@ class GradientDescentOptimizerTest {
        
         Vector solutionFound = optimizer.optimize(new Vector(b, 1), function, gradient);
        
-        Vector explicitSolution = Vector.createZero(2);
+        Vector explicitSolution = new Vector(2);
        
         assertEquals(0, solutionFound.minus(explicitSolution).norm(), TOLERANCE);
     }
@@ -69,7 +69,7 @@ class GradientDescentOptimizerTest {
            
         Vector solutionFound = optimizer.optimize(new Vector(b, 1), function, gradient);
            
-        Vector explicitSolution = Vector.createZero(2);
+        Vector explicitSolution = new Vector(2);
            
         assertEquals(0, solutionFound.minus(explicitSolution).norm(), TOLERANCE);
     }

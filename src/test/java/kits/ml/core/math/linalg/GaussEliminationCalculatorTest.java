@@ -19,11 +19,11 @@ public class GaussEliminationCalculatorTest {
             {2, 1, 3}}
         );
         
-        Vector b = new Vector(4, 2, 7);
+        Vector b = new Vector(new double[] {4, 2, 7});
         
         Vector result = GaussEliminationCalculator.solveEquation(A, b);
         
-        assertEquals(new Vector(3, -2, 1), result);
+        assertEquals(new Vector(new double[] {3, -2, 1}), result);
     }
     
     @Test
@@ -35,11 +35,11 @@ public class GaussEliminationCalculatorTest {
             {-2,  7, 2}}
         );
         
-        Vector b = new Vector(5, -2, 9);
+        Vector b = new Vector(new double[] {5, -2, 9});
         
         Vector result = GaussEliminationCalculator.solveEquation(A, b);
         
-        assertEquals(new Vector(1, 1, 2), result);
+        assertEquals(new Vector(new double[] {1, 1, 2}), result);
     }
     
     @Test
@@ -51,11 +51,11 @@ public class GaussEliminationCalculatorTest {
             {4, 6, 8}}
         );
         
-        Vector b = new Vector(4, 2, 7);
+        Vector b = new Vector(new double[] {4, 2, 7});
         
         Vector result = GaussEliminationCalculator.solveEquation(A, b);
         
-        assertEquals(new Vector(6.5, -0.5, -2), result);
+        assertEquals(new Vector(new double[] {6.5, -0.5, -2}), result);
     }
     
     @Test

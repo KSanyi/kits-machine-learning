@@ -18,7 +18,7 @@ public class MLMath {
     }
 
     public static Matrix sigmoid(Matrix X) {
-        return X.map((i, j) -> MLMath.sigmoid(X.get(i, j)));
+        return X.map(MLMath::sigmoid);
     }
     
     public static Vector sigmoid(Vector x) {
@@ -30,11 +30,17 @@ public class MLMath {
     }
 
     public static Matrix sigmoidGradient(Matrix X) {
-        return X.map((i, j) -> MLMath.sigmoidGradient(X.get(i, j)));
+        return X.map(MLMath::sigmoidGradient);
     }
     
     public static Vector sigmoidGradient(Vector x) {
         return x.map(MLMath::sigmoidGradient);
+    }
+
+    public static Vector oneHot(int length, int index) {
+        Vector result = new Vector(length);
+        result.set(index, 1);
+        return result;
     }
     
 }

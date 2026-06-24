@@ -1,9 +1,10 @@
-package kits.ml.core;
+package kits.ml.regression;
 
 import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import kits.ml.core.LearningData;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Matrix;
 import kits.ml.core.math.linalg.Vector;
