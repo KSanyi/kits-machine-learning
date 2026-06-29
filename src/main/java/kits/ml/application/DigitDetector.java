@@ -27,6 +27,7 @@ public class DigitDetector {
 
         neuralNet.setNumberOfEpochs(100);
         neuralNet.setLearningRate(0.01);
+        neuralNet.setLearningRateDecay(33, 0.5);
         
         neuralNet.learn(dataPoints);
     }
