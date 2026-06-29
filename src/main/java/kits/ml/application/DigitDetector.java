@@ -20,11 +20,11 @@ public class DigitDetector {
     
     private static final Logger LOGGER = new Logger();
     
-    private final NeuralNet neuralNet = new NeuralNet(StandardCostFunction.CROSS_ENTROPY, StandardActivationFunction.SIGMOID, 784, 60, 10);
-    
+    private final NeuralNet neuralNet = new NeuralNet(StandardCostFunction.CROSS_ENTROPY, StandardActivationFunction.RELU, StandardActivationFunction.SIGMOID, 784, 256, 128, 10);
+
     public void learn(File trainingSet) throws IOException {
         List<DataPoint> dataPoints = loadDataPoints(trainingSet, 100);
-        
+
         neuralNet.setNumberOfEpochs(100);
         neuralNet.setLearningRate(0.01);
         

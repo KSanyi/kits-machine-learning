@@ -21,17 +21,24 @@ public class NeuralNet {
     private final int numberOfLayers;
     
     private final CostFunction costFunction;
-    
+
     private final ActivationFunction activationFunction;
+
+    // output layer uses its own activation (must map to (0,1) for cross-entropy)
+    private final ActivationFunction outputActivationFunction;
     
     private double learningRate = 0.01;
     
     private double numberOfEpochs = 100;
     
     public NeuralNet(CostFunction costFunction, ActivationFunction activationFunction, int ... neuronsPerLayer) {
-        
+        this(costFunction, activationFunction, ActivationFunction.StandardActivationFunction.SIGMOID, neuronsPerLayer);
+    }
+
+    public NeuralNet(CostFunction costFunction, ActivationFunction hiddenActivationFunction, ActivationFunction outputActivationFunction, int ... neuronsPerLayer) {
         this.costFunction = costFunction;
-        this.activationFunction = activationFunction;
+        this.activationFunction = hiddenActivationFunction;
+        this.outputActivationFunction = outputActivationFunction;
         numberOfLayers = neuronsPerLayer.length;
         
         weightMatrixes = new Matrix[numberOfLayers-1];
@@ -51,8 +58,8 @@ public class NeuralNet {
     private void randomizeWeights() {
         Random random = new Random();
         for(Matrix matrix : weightMatrixes) {
-            // Xavier initialization
-            double sigma = MLMath.sqrt(1.0 / (matrix.getNrColumns() + matrix.getNrRows()));
+            // He initialization — optimal for ReLU: σ = √(2 / nrInputs)
+            double sigma = MLMath.sqrt(2.0 / matrix.getNrColumns());
             matrix.apply(x -> random.nextGaussian() * sigma);
         }
         
@@ -77,7 +84,8 @@ public class NeuralNet {
         Vector[] activations = new Vector[numberOfLayers];
         activations[0] = dataPoint.input();
         for(int i=0;i<numberOfLayers-1;i++) {
-            activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(activationFunction::apply);
+            ActivationFunction af = (i == numberOfLayers - 2) ? outputActivationFunction : activationFunction;
+            activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(af::apply);
         }
 
         Vector target = dataPoint.output();
@@ -94,7 +102,7 @@ public class NeuralNet {
         Matrix[] dWs = new Matrix[n];
         Vector[] dbs = new Vector[n];
         Vector costGradient = costFunction.gradient(activations[n], target);
-        Vector outputActivationGradient = activations[n].map(activationFunction::derivative);
+        Vector outputActivationGradient = activations[n].map(outputActivationFunction::derivative);
         dbs[n-1] = costGradient.hadamardProduct(outputActivationGradient);
         dWs[n-1] = dbs[n-1].multiply(activations[n-1]);
 
@@ -111,7 +119,8 @@ public class NeuralNet {
     public Vector predict(Vector input) {
         Vector vector = input;
         for(int i=0;i<numberOfLayers-1;i++) {
-            vector = weightMatrixes[i].multiply(vector).plus(biasVectors[i]).map(activationFunction::apply);
+            ActivationFunction af = (i == numberOfLayers - 2) ? outputActivationFunction : activationFunction;
+            vector = weightMatrixes[i].multiply(vector).plus(biasVectors[i]).map(af::apply);
         }
         return vector;
     }

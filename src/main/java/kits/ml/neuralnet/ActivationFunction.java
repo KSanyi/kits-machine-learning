@@ -25,9 +25,20 @@ public interface ActivationFunction {
             public double apply(double value) {
                 return MLMath.sigmoid(value);
             }
-            
+
             public double derivative(double activatedValue) {
                 return activatedValue * (1 - activatedValue);
+            }
+        },
+
+        RELU {
+            public double apply(double value) {
+                return Math.max(0, value);
+            }
+
+            // derivative expressed via activated value: relu'(x) = 1 iff relu(x) > 0
+            public double derivative(double activatedValue) {
+                return activatedValue > 0 ? 1 : 0;
             }
         };
 
