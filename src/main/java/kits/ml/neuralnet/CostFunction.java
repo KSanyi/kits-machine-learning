@@ -31,7 +31,7 @@ public interface CostFunction {
                 }
                 return -sum;
             }
-            
+
             public Vector gradient(Vector predictedOutput, Vector trueOutput) {
                 double[] result = new double[predictedOutput.length()];
                 for(int i=0;i<result.length;i++) {
@@ -40,6 +40,22 @@ public interface CostFunction {
                     result[i] = (activatedValue - y) / (activatedValue * (1 - activatedValue));
                 }
                 return new Vector(result);
+            }
+        },
+
+        // correct cost for softmax output: -log(probability of true class)
+        // gradient is unused for softmax (outputDelta returns a-y directly)
+        CATEGORICAL_CROSS_ENTROPY {
+            public double cost(Vector predictedOutput, Vector trueOutput) {
+                double sum = 0;
+                for(int i = 0; i < trueOutput.length(); i++) {
+                    sum += trueOutput.get(i) * Math.log(Math.max(predictedOutput.get(i), 1e-15));
+                }
+                return -sum;
+            }
+
+            public Vector gradient(Vector predictedOutput, Vector trueOutput) {
+                throw new UnsupportedOperationException("Use SOFTMAX.outputDelta() — gradient is handled there");
             }
         };
 
