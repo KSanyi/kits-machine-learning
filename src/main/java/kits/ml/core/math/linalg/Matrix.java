@@ -12,6 +12,8 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import kits.ml.core.math.MLMath;
+
 public class Matrix {
 
     private static final double EPSILON = 0.001;
@@ -311,6 +313,10 @@ public class Matrix {
         }
         
         return stringValues.stream().map(row -> String.join(" ", row)).collect(joining("\n"));
+    }
+    
+    public double norm() {
+        return MLMath.sqrt(allValuesStream().map(MLMath::square).sum());
     }
 
 }

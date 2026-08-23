@@ -42,5 +42,18 @@ public class MLMath {
         result.set(index, 1);
         return result;
     }
+
+    public static Vector softMax(Vector vector) {
+        
+        double sum = 0;
+        Vector result = new Vector(vector.length());
+        for(int i=0;i<vector.length();i++) {
+            result.set(i, Math.exp(-vector.get(i))); 
+            sum += result.get(i); 
+        }
+        result.scaleThis(1/sum);
+        
+        return result;
+    }
     
 }

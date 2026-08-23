@@ -29,6 +29,16 @@ public interface ActivationFunction {
             public double derivative(double activatedValue) {
                 return activatedValue * (1 - activatedValue);
             }
+        },
+        
+        RELU {
+            public double apply(double value) {
+                return Math.max(0, value);
+            }
+            
+            public double derivative(double activatedValue) {
+                return activatedValue > 0 ? 1 : 0;
+            }
         };
 
     }

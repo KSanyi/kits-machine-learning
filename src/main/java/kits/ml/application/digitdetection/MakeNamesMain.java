@@ -1,4 +1,4 @@
-package kits.ml.application;
+package kits.ml.application.digitdetection;
 
 import java.io.IOException;
 import java.nio.file.Files;

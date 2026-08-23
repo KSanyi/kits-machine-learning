@@ -1,4 +1,4 @@
-package kits.ml.application;
+package kits.ml.application.digitdetection;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,30 +11,13 @@ import javax.imageio.ImageIO;
 import kits.ml.core.DataPoint;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Vector;
-import kits.ml.neuralnet.ActivationFunction.StandardActivationFunction;
-import kits.ml.neuralnet.CostFunction.StandardCostFunction;
-import kits.ml.neuralnet.NeuralNet;
-import kits.ml.util.Logger;
 
-public class DigitDetector {
+public abstract class BaseDigitDetector {
     
-    private static final Logger LOGGER = new Logger();
-    
-    private final NeuralNet neuralNet = new NeuralNet(StandardCostFunction.CROSS_ENTROPY, StandardActivationFunction.SIGMOID, 784, 60, 10);
-    
-    public void learn(File trainingSet) throws IOException {
-        List<DataPoint> dataPoints = loadDataPoints(trainingSet, 100);
-        
-        neuralNet.setNumberOfEpochs(100);
-        neuralNet.setLearningRate(0.01);
-        
-        neuralNet.learn(dataPoints);
-    }
-
-    private static List<DataPoint> loadDataPoints(File trainingFilesRoot, int dataPointsPerDigit) throws IOException {
+    protected static List<DataPoint> loadDataPoints(File trainingFilesRoot, int dataPointsPerDigit) throws IOException {
         List<DataPoint> datapoints = new ArrayList<>();
         for(File digitFolder : trainingFilesRoot.listFiles()) {
-            LOGGER.log("Reading folder " + digitFolder);
+            //LOGGER.log("Reading folder " + digitFolder);
             int digit = Integer.parseInt(digitFolder.getName());
             int count = 0;
             for(File digitFile : digitFolder.listFiles()) {
@@ -49,7 +32,7 @@ public class DigitDetector {
         return datapoints;
     }
     
-    private static Vector createInputVector(File digitFile) throws IOException {
+    protected static Vector createInputVector(File digitFile) throws IOException {
         BufferedImage img = ImageIO.read(digitFile);
         
         int width = img.getWidth();
@@ -76,13 +59,7 @@ public class DigitDetector {
         return (r + g + b) / 3;
     }
 
-    public int detect(File digitFile) throws IOException {
-        Vector output = neuralNet.predict(createInputVector(digitFile));
-        
-        return convertoToDigit(output);
-    }
-    
-    private static int convertoToDigit(Vector output) {
+    protected static int convertoToDigit(Vector output) {
         int indexWithMaxValue = -1;
         double maxValue = -1;
         for(int i=0;i<output.length();i++) {

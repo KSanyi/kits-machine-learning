@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public record DataSets(List<LearningData> trainingData, List<LearningData> testData) {
+public record DataSets<T>(List<T> trainingData, List<T> testData) {
 
-    public static DataSets create(List<LearningData> allData, int trainingPercent) {
+    public static <T> DataSets<T> create(List<T> allData, int trainingPercent) {
         
         Random random = new Random(0);
         
-        List<LearningData> trainingData = new ArrayList<>();
-        List<LearningData> testData = new ArrayList<>();
+        List<T> trainingData = new ArrayList<>();
+        List<T> testData = new ArrayList<>();
         
-        for(LearningData data : allData) {
+        for(T data : allData) {
             if(random.nextDouble() * 100 < trainingPercent) {
                 trainingData.add(data);
             } else {
                 testData.add(data);
             }
         }
-        return new DataSets(trainingData, testData);
+        return new DataSets<T>(trainingData, testData);
     }
     
 }

@@ -1,5 +1,6 @@
 package kits.ml.neuralnet;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -12,8 +13,6 @@ import kits.ml.util.Logger;
 
 public class NeuralNet {
 
-    private final Logger logger = new Logger();
-    
     private final Matrix[] weightMatrixes;
     
     private final Vector[] biasVectors;
@@ -27,6 +26,8 @@ public class NeuralNet {
     private double learningRate = 0.01;
     
     private double numberOfEpochs = 100;
+    
+    private double lambda = 0;
     
     public NeuralNet(CostFunction costFunction, ActivationFunction activationFunction, int ... neuronsPerLayer) {
         
@@ -44,6 +45,8 @@ public class NeuralNet {
             weightMatrixes[i] = new Matrix(numberOfNeuronsInNextLayer, numberOfNeuronsInCurrentLayer);
             biasVectors[i] = new Vector(numberOfNeuronsInNextLayer);
         }
+        
+        Logger.log("Neural net created with neurons per layer: " + Arrays.toString(neuronsPerLayer));
         
         randomizeWeights();
     }
@@ -68,7 +71,7 @@ public class NeuralNet {
             for(DataPoint datapoint : dataPoints) {
                 learn(datapoint);
             }
-            logger.log("Cost at epoch " + i + ": " + cost(dataPoints));
+            Logger.log("Cost at epoch " + i + ": " + cost(dataPoints));
         }
     }
     
@@ -76,14 +79,16 @@ public class NeuralNet {
 
         Vector[] activations = new Vector[numberOfLayers];
         activations[0] = dataPoint.input();
-        for(int i=0;i<numberOfLayers-1;i++) {
+        int i;
+        for(i=0;i<numberOfLayers-2;i++) {
             activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(activationFunction::apply);
         }
+        activations[i+1] = MLMath.softMax(weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]));
 
         Vector target = dataPoint.output();
         Gradient gradient = calculateGradient(activations, target);
-        
-        for(int i=0;i<numberOfLayers-1;i++) {
+        Logger.log(gradient.dWs[1].norm() + "");
+        for(i=0;i<numberOfLayers-1;i++) {
             weightMatrixes[i] = weightMatrixes[i].minus(gradient.dWs[i].scale(learningRate));
             biasVectors[i] = biasVectors[i].minus(gradient.dbs[i].scale(learningRate));
         }
@@ -96,13 +101,13 @@ public class NeuralNet {
         Vector costGradient = costFunction.gradient(activations[n], target);
         Vector outputActivationGradient = activations[n].map(activationFunction::derivative);
         dbs[n-1] = costGradient.hadamardProduct(outputActivationGradient);
-        dWs[n-1] = dbs[n-1].multiply(activations[n-1]);
+        dWs[n-1] = dbs[n-1].multiply(activations[n-1]).plus(weightMatrixes[n-1].scale(lambda));
 
         for (int i = n-2; i >= 0; i--) {
             Vector wTDelta = weightMatrixes[i+1].transpose().multiply(dbs[i+1]);
             Vector activationGrad = activations[i+1].map(activationFunction::derivative);
             dbs[i] = wTDelta.hadamardProduct(activationGrad);
-            dWs[i] = dbs[i].multiply(activations[i]);
+            dWs[i] = dbs[i].multiply(activations[i]).plus(weightMatrixes[i].scale(lambda));
         }
         
         return new Gradient(dWs, dbs);
@@ -110,9 +115,11 @@ public class NeuralNet {
 
     public Vector predict(Vector input) {
         Vector vector = input;
-        for(int i=0;i<numberOfLayers-1;i++) {
+        int i;
+        for(i=0;i<numberOfLayers-2;i++) {
             vector = weightMatrixes[i].multiply(vector).plus(biasVectors[i]).map(activationFunction::apply);
         }
+        vector = MLMath.softMax(weightMatrixes[i].multiply(vector).plus(biasVectors[i]));
         return vector;
     }
 
@@ -129,10 +136,17 @@ public class NeuralNet {
 
     public void setNumberOfEpochs(int numberOfEpochs) {
         this.numberOfEpochs = numberOfEpochs;
+        Logger.log("Number of epochs rate is set to " + numberOfEpochs);
     }
 
     public void setLearningRate(double learningRate) {
         this.learningRate = learningRate;
+        Logger.log("Learning rate is set to " + learningRate);
+    }
+    
+    public void setLambda(double lambda) {
+        this.lambda = lambda;
+        Logger.log("Lambda is set to " + lambda);
     }
     
     private static record Gradient(Matrix[] dWs, Vector[] dbs) {}
