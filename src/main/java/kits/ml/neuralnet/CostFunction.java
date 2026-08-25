@@ -27,7 +27,7 @@ public interface CostFunction {
                 for(int i=0;i<trueOutput.length();i++) {
                     double y = trueOutput.get(i);
                     double activatedValue = predictedOutput.get(i);
-                    sum += y * Math.log(activatedValue);// + (1 - y) * Math.log(1 - activatedValue);
+                    sum += y * Math.log(activatedValue);
                 }
                 return -sum;
             }
@@ -38,7 +38,6 @@ public interface CostFunction {
                     double y = trueOutput.get(i);
                     double activatedValue = predictedOutput.get(i);
                     
-                    //result[i] = (activatedValue - y) / (activatedValue * (1 - activatedValue));
                     result[i] = -y / activatedValue;
                 }
                 return new Vector(result);

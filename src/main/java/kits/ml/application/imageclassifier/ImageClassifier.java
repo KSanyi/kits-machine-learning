@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 
 import kits.ml.core.DataPoint;
+import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.ActivationFunction.StandardActivationFunction;
 import kits.ml.neuralnet.CostFunction.StandardCostFunction;
@@ -21,11 +22,11 @@ public class ImageClassifier {
     
     private List<String> labels = List.of();
     
-    public ImageClassifier() {
-        neuralNet = new NeuralNet(StandardCostFunction.CROSS_ENTROPY, StandardActivationFunction.RELU, 3072, 100, 10);
+    public ImageClassifier(int numberOfEpochs) {
+        neuralNet = new NeuralNet(StandardActivationFunction.SIGMOID, 3072, 100, 10);
         
-        neuralNet.setNumberOfEpochs(100);
-        neuralNet.setLearningRate(0.001);
+        neuralNet.setNumberOfEpochs(numberOfEpochs);
+        neuralNet.setLearningRate(0.01);
         //neuralNet.setLambda(0.001);
     }
     
@@ -100,20 +101,8 @@ public class ImageClassifier {
     public String predict(File image) {
         Vector inputVector = createInputVector(image);
         Vector outputVector = neuralNet.predict(inputVector);
-        int index = convertoToIndex(outputVector);
+        int index = MLMath.findMaxIndex(outputVector);
         return labels.get(index);
-    }
-    
-    private static int convertoToIndex(Vector output) {
-        int indexWithMaxValue = -1;
-        double maxValue = -1;
-        for(int i=0;i<output.length();i++) {
-            if(output.get(i) > maxValue) {
-                maxValue = output.get(i);
-                indexWithMaxValue = i;
-            }
-        }
-        return indexWithMaxValue;
     }
     
     private double test(List<ImageLearningData> testData) {

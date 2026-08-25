@@ -19,16 +19,16 @@ public class ImageClassifierMain {
     public static void main(String[] args) throws IOException {
         
         DataSets<ImageLearningData> datasets = createDataSets(90);
-        ImageClassifier imageClassifier = new ImageClassifier();
+        ImageClassifier imageClassifier = new ImageClassifier(10);
+        List<ImageLearningData> trainingData = datasets.trainingData();//sample(datasets.trainingData(), 1000);
+        for(int i=0;i<20;i++) {
+            Logger.log("Training round " + (i+1) + " starts");
+            imageClassifier.train(trainingData, datasets.testData());
+            
+            Logger.log("Result on training set: " + test(imageClassifier, trainingData));
+            Logger.log("Result on test set: " + test(imageClassifier, datasets.testData()));
+        }
         
-        Logger.log("Training starts");
-        
-        List<ImageLearningData> trainingData = sample(datasets.trainingData(), 1000);
-        
-        imageClassifier.train(trainingData, datasets.testData());
-        
-        Logger.log("Result on training set: " + test(imageClassifier, datasets.trainingData()));
-        Logger.log("Result on test set: " + test(imageClassifier, datasets.testData()));
     }
 
     private static List<ImageLearningData> sample(List<ImageLearningData> trainingData, int numberOfSamples) {

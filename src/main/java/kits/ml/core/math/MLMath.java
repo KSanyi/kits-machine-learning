@@ -47,13 +47,29 @@ public class MLMath {
         
         double sum = 0;
         Vector result = new Vector(vector.length());
-        for(int i=0;i<vector.length();i++) {
-            result.set(i, Math.exp(-vector.get(i))); 
+        
+        double max = vector.stream().max().getAsDouble();
+        Vector stabilizedVector = vector.map(e -> e - max);
+        
+        for(int i=0;i<stabilizedVector.length();i++) {
+            result.set(i, Math.exp(stabilizedVector.get(i))); 
             sum += result.get(i); 
         }
         result.scaleThis(1/sum);
         
         return result;
+    }
+    
+    public static int findMaxIndex(Vector output) {
+        int indexWithMaxValue = -1;
+        double maxValue = -1;
+        for(int i=0;i<output.length();i++) {
+            if(output.get(i) > maxValue) {
+                maxValue = output.get(i);
+                indexWithMaxValue = i;
+            }
+        }
+        return indexWithMaxValue;
     }
     
 }

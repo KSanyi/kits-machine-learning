@@ -19,9 +19,9 @@ public class NeuralNet {
     
     private final int numberOfLayers;
     
-    private final CostFunction costFunction;
+    private final CostFunction costFunction = CostFunction.StandardCostFunction.CROSS_ENTROPY;
     
-    private final ActivationFunction activationFunction;
+    private final ActivationFunction hiddenLayerActivationFunction; // output layer is always SoftMax
     
     private double learningRate = 0.01;
     
@@ -29,10 +29,9 @@ public class NeuralNet {
     
     private double lambda = 0;
     
-    public NeuralNet(CostFunction costFunction, ActivationFunction activationFunction, int ... neuronsPerLayer) {
+    public NeuralNet(ActivationFunction hiddenLayerActivationFunction, int ... neuronsPerLayer) {
         
-        this.costFunction = costFunction;
-        this.activationFunction = activationFunction;
+        this.hiddenLayerActivationFunction = hiddenLayerActivationFunction;
         numberOfLayers = neuronsPerLayer.length;
         
         weightMatrixes = new Matrix[numberOfLayers-1];
@@ -64,63 +63,69 @@ public class NeuralNet {
         }
     }
 
-
     public void learn(List<DataPoint> dataPoints) {
         for(int i=0;i<numberOfEpochs;i++) {
             Collections.shuffle(dataPoints);
             for(DataPoint datapoint : dataPoints) {
                 learn(datapoint);
             }
+            Logger.log("Learning done for epoch");
             Logger.log("Cost at epoch " + i + ": " + cost(dataPoints));
         }
+        
+//        for(DataPoint dataPoint : dataPoints) {
+//            double cost = cost(dataPoint);
+//            Vector output = predict(dataPoint.input());
+//            System.out.println((MLMath.findMaxIndex(output) == MLMath.findMaxIndex(dataPoint.output())) + ": " + cost);
+//        }
+        
     }
     
     public void learn(DataPoint dataPoint) {
 
-        Vector[] activations = new Vector[numberOfLayers];
-        activations[0] = dataPoint.input();
-        int i;
-        for(i=0;i<numberOfLayers-2;i++) {
-            activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(activationFunction::apply);
-        }
-        activations[i+1] = MLMath.softMax(weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]));
+        Vector[] activations = forwardPass(dataPoint.input());
 
-        Vector target = dataPoint.output();
-        Gradient gradient = calculateGradient(activations, target);
-        Logger.log(gradient.dWs[1].norm() + "");
-        for(i=0;i<numberOfLayers-1;i++) {
+        Gradient gradient = calculateGradient(activations, dataPoint.output());
+        // Logger.log(gradient.dWs[1].norm() + "");
+        for(int i=0;i<numberOfLayers-1;i++) {
             weightMatrixes[i] = weightMatrixes[i].minus(gradient.dWs[i].scale(learningRate));
             biasVectors[i] = biasVectors[i].minus(gradient.dbs[i].scale(learningRate));
         }
+    }
+    
+    private Vector[] forwardPass(Vector input) {
+        Vector[] activations = new Vector[numberOfLayers];
+        activations[0] = input;
+        int i;
+        for(i=0;i<numberOfLayers-2;i++) {
+            activations[i+1] = weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]).map(hiddenLayerActivationFunction::apply);
+        }
+        activations[i+1] = MLMath.softMax(weightMatrixes[i].multiply(activations[i]).plus(biasVectors[i]));
+        return activations;
     }
     
     private Gradient calculateGradient(Vector[] activations, Vector target) {
         int n = weightMatrixes.length;
         Matrix[] dWs = new Matrix[n];
         Vector[] dbs = new Vector[n];
-        Vector costGradient = costFunction.gradient(activations[n], target);
-        Vector outputActivationGradient = activations[n].map(activationFunction::derivative);
-        dbs[n-1] = costGradient.hadamardProduct(outputActivationGradient);
-        dWs[n-1] = dbs[n-1].multiply(activations[n-1]).plus(weightMatrixes[n-1].scale(lambda));
+        //Vector costGradient = costFunction.gradient(activations[n], target);
+        //Vector outputActivationGradient = activations[n].map(hiddenLayerActivationFunction::derivative);
+        dbs[n-1] = activations[n].minus(target); //costGradient.hadamardProduct(outputActivationGradient);
+        dWs[n-1] = dbs[n-1].multiply(activations[n-1]);//.plus(weightMatrixes[n-1].scale(lambda));
 
         for (int i = n-2; i >= 0; i--) {
             Vector wTDelta = weightMatrixes[i+1].transpose().multiply(dbs[i+1]);
-            Vector activationGrad = activations[i+1].map(activationFunction::derivative);
+            Vector activationGrad = activations[i+1].map(hiddenLayerActivationFunction::derivative);
             dbs[i] = wTDelta.hadamardProduct(activationGrad);
-            dWs[i] = dbs[i].multiply(activations[i]).plus(weightMatrixes[i].scale(lambda));
+            dWs[i] = dbs[i].multiply(activations[i]);//.plus(weightMatrixes[i].scale(lambda));
         }
         
         return new Gradient(dWs, dbs);
     }
 
     public Vector predict(Vector input) {
-        Vector vector = input;
-        int i;
-        for(i=0;i<numberOfLayers-2;i++) {
-            vector = weightMatrixes[i].multiply(vector).plus(biasVectors[i]).map(activationFunction::apply);
-        }
-        vector = MLMath.softMax(weightMatrixes[i].multiply(vector).plus(biasVectors[i]));
-        return vector;
+        Vector[] activations = forwardPass(input);
+        return activations[activations.length-1];
     }
 
     public double cost(List<DataPoint> dataPoints) {
