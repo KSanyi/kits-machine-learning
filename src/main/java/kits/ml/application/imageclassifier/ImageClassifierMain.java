@@ -23,7 +23,7 @@ public class ImageClassifierMain {
         List<ImageLearningData> trainingData = datasets.trainingData();//sample(datasets.trainingData(), 1000);
         for(int i=0;i<20;i++) {
             Logger.log("Training round " + (i+1) + " starts");
-            imageClassifier.train(trainingData, datasets.testData());
+            imageClassifier.train(trainingData);
             
             Logger.log("Result on training set: " + test(imageClassifier, trainingData));
             Logger.log("Result on test set: " + test(imageClassifier, datasets.testData()));

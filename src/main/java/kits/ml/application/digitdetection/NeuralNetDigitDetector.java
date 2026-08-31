@@ -7,12 +7,11 @@ import java.util.List;
 import kits.ml.core.DataPoint;
 import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.ActivationFunction.StandardActivationFunction;
-import kits.ml.neuralnet.CostFunction.StandardCostFunction;
 import kits.ml.neuralnet.NeuralNet;
 
 public class NeuralNetDigitDetector extends BaseDigitDetector {
     
-    private final NeuralNet neuralNet = new NeuralNet(StandardCostFunction.CROSS_ENTROPY, StandardActivationFunction.SIGMOID, 784, 60, 10);
+    private final NeuralNet neuralNet = new NeuralNet(StandardActivationFunction.RELU, 784, 60, 10);
     
     public void learn(File trainingSet) throws IOException {
         List<DataPoint> dataPoints = loadDataPoints(trainingSet, 100);

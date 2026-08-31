@@ -44,8 +44,7 @@ public class NeuralNet {
             weightMatrixes[i] = new Matrix(numberOfNeuronsInNextLayer, numberOfNeuronsInCurrentLayer);
             biasVectors[i] = new Vector(numberOfNeuronsInNextLayer);
         }
-        
-        Logger.log("Neural net created with neurons per layer: " + Arrays.toString(neuronsPerLayer));
+        Logger.log("Neural net created with neurons per layer: " + Arrays.toString(neuronsPerLayer) + ". Hidden layer activation function: " + hiddenLayerActivationFunction.name());
         
         randomizeWeights();
     }
@@ -69,15 +68,9 @@ public class NeuralNet {
             for(DataPoint datapoint : dataPoints) {
                 learn(datapoint);
             }
-            Logger.log("Learning done for epoch");
+            Logger.log("Learning done for epoch, checking cost");
             Logger.log("Cost at epoch " + i + ": " + cost(dataPoints));
         }
-        
-//        for(DataPoint dataPoint : dataPoints) {
-//            double cost = cost(dataPoint);
-//            Vector output = predict(dataPoint.input());
-//            System.out.println((MLMath.findMaxIndex(output) == MLMath.findMaxIndex(dataPoint.output())) + ": " + cost);
-//        }
         
     }
     
@@ -86,10 +79,11 @@ public class NeuralNet {
         Vector[] activations = forwardPass(dataPoint.input());
 
         Gradient gradient = calculateGradient(activations, dataPoint.output());
-        // Logger.log(gradient.dWs[1].norm() + "");
         for(int i=0;i<numberOfLayers-1;i++) {
-            weightMatrixes[i] = weightMatrixes[i].minus(gradient.dWs[i].scale(learningRate));
-            biasVectors[i] = biasVectors[i].minus(gradient.dbs[i].scale(learningRate));
+            gradient.dWs[i].scaleThis(learningRate);
+            gradient.dbs[i].scaleThis(learningRate);
+            weightMatrixes[i].minusThis(gradient.dWs[i]);
+            biasVectors[i].minusThis(gradient.dbs[i]);
         }
     }
     
@@ -108,16 +102,20 @@ public class NeuralNet {
         int n = weightMatrixes.length;
         Matrix[] dWs = new Matrix[n];
         Vector[] dbs = new Vector[n];
-        //Vector costGradient = costFunction.gradient(activations[n], target);
-        //Vector outputActivationGradient = activations[n].map(hiddenLayerActivationFunction::derivative);
-        dbs[n-1] = activations[n].minus(target); //costGradient.hadamardProduct(outputActivationGradient);
-        dWs[n-1] = dbs[n-1].multiply(activations[n-1]);//.plus(weightMatrixes[n-1].scale(lambda));
+        dbs[n-1] = activations[n].minus(target);
+        dWs[n-1] = dbs[n-1].multiply(activations[n-1]);
 
         for (int i = n-2; i >= 0; i--) {
             Vector wTDelta = weightMatrixes[i+1].transpose().multiply(dbs[i+1]);
             Vector activationGrad = activations[i+1].map(hiddenLayerActivationFunction::derivative);
             dbs[i] = wTDelta.hadamardProduct(activationGrad);
-            dWs[i] = dbs[i].multiply(activations[i]);//.plus(weightMatrixes[i].scale(lambda));
+            dWs[i] = dbs[i].multiply(activations[i]);
+        }
+        
+        if(lambda > 0) {
+            for(int i=0;i<weightMatrixes.length;i++) { 
+                dWs[i].plusThis(weightMatrixes[i].scale(lambda));
+            } 
         }
         
         return new Gradient(dWs, dbs);
@@ -129,7 +127,16 @@ public class NeuralNet {
     }
 
     public double cost(List<DataPoint> dataPoints) {
-        return dataPoints.stream().mapToDouble(this::cost).sum() / dataPoints.size();
+        double cost = dataPoints.stream().mapToDouble(this::cost).sum() / dataPoints.size();
+        double regularisationCost = 0;
+        if(lambda > 0) {
+            for(Matrix w : weightMatrixes) {
+                regularisationCost += w.allValuesStream().map(MLMath::square).sum();
+            }
+            cost += regularisationCost * lambda;
+        }
+        
+        return cost;
     }
     
     public double cost(DataPoint dataPoint) {
@@ -141,7 +148,7 @@ public class NeuralNet {
 
     public void setNumberOfEpochs(int numberOfEpochs) {
         this.numberOfEpochs = numberOfEpochs;
-        Logger.log("Number of epochs rate is set to " + numberOfEpochs);
+        Logger.log("Number of epochs is set to " + numberOfEpochs);
     }
 
     public void setLearningRate(double learningRate) {

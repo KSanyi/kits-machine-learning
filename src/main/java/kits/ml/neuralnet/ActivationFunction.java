@@ -4,10 +4,12 @@ import kits.ml.core.math.MLMath;
 
 public interface ActivationFunction {
     
-    public double apply(double value);
+    double apply(double value);
 
     // derivative of the activation with respect to its pre-activation input, expressed in terms of the already-activated value
-    public double derivative(double activatedValue);
+    double derivative(double activatedValue);
+    
+    String name();
     
     public enum StandardActivationFunction implements ActivationFunction {
 

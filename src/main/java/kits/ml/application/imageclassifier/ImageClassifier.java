@@ -12,7 +12,6 @@ import kits.ml.core.DataPoint;
 import kits.ml.core.math.MLMath;
 import kits.ml.core.math.linalg.Vector;
 import kits.ml.neuralnet.ActivationFunction.StandardActivationFunction;
-import kits.ml.neuralnet.CostFunction.StandardCostFunction;
 import kits.ml.neuralnet.NeuralNet;
 import kits.ml.util.Logger;
 
@@ -23,14 +22,14 @@ public class ImageClassifier {
     private List<String> labels = List.of();
     
     public ImageClassifier(int numberOfEpochs) {
-        neuralNet = new NeuralNet(StandardActivationFunction.SIGMOID, 3072, 100, 10);
+        neuralNet = new NeuralNet(StandardActivationFunction.RELU, 3072, 100, 10);
         
         neuralNet.setNumberOfEpochs(numberOfEpochs);
         neuralNet.setLearningRate(0.01);
-        //neuralNet.setLambda(0.001);
+        neuralNet.setLambda(0.001);
     }
     
-    public void train(List<ImageLearningData> trainingData, List<ImageLearningData> testData) {
+    public void train(List<ImageLearningData> trainingData) {
         
         labels = trainingData.stream().map(ImageLearningData::label).distinct().sorted().toList();
         
@@ -41,15 +40,7 @@ public class ImageClassifier {
                 .collect(Collectors.toList());
         
         Logger.log("Learning starts");
-        //for(int i=0;i<500;i++) {
-            neuralNet.learn(datapoints);
-        //    Logger.log("Epoch" + (i+1));
-            //if(i > 30 || i % 5 == 0) {
-        //        Logger.log("Result on training set: " +  test(trainingData));
-        //        Logger.log("Result on test set: " +  test(testData));    
-            //}
-        //}
-        
+        neuralNet.learn(datapoints);
     }
 
     private static Vector createInputVector(File image) {
@@ -103,18 +94,6 @@ public class ImageClassifier {
         Vector outputVector = neuralNet.predict(inputVector);
         int index = MLMath.findMaxIndex(outputVector);
         return labels.get(index);
-    }
-    
-    private double test(List<ImageLearningData> testData) {
-        int count = 0;
-        int success = 0;
-        for(ImageLearningData dataPoint : testData) {
-            String predictedLabel = predict(dataPoint.file());
-            count++;
-            if(predictedLabel.equals(dataPoint.label())) success++;
-        }
-        
-        return success / (double)count;
     }
 
     record ImageLearningData(File file, String label) {}
